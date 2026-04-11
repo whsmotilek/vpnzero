@@ -63,6 +63,9 @@
             background: var(--accent); box-shadow: 0 0 8px var(--accent);
             animation: pulse 2s infinite;
         }
+        .status-dot.online { background: #00d4aa; box-shadow: 0 0 8px #00d4aa; animation: pulse 2s infinite; }
+        .status-dot.offline { background: #ff4757; box-shadow: 0 0 8px #ff4757; }
+        .status-dot.checking { background: #ffa502; box-shadow: 0 0 8px #ffa502; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .status-label { font-size: 14px; color: var(--text-dim); }
         .status-value { font-size: 14px; font-weight: 600; }
@@ -205,6 +208,16 @@
                 <span class="status-label" id="statusText">Нет подписки</span>
             </div>
             <span class="status-value" id="statusExpiry"></span>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-row">
+            <div class="status-indicator">
+                <div class="status-dot checking" id="serverDot"></div>
+                <span class="status-label" id="serverText">Сервер: проверка...</span>
+            </div>
+            <span class="status-value" id="serverPing"></span>
         </div>
     </div>
 
@@ -513,6 +526,46 @@
             expiry.textContent = '';
         }
     }
+
+    // ── Проверка статуса VPN-сервера ──
+    function checkServerStatus() {
+        var dot = document.getElementById('serverDot');
+        var text = document.getElementById('serverText');
+        var ping = document.getElementById('serverPing');
+        var start = Date.now();
+
+        dot.className = 'status-dot checking';
+        text.textContent = 'Сервер: проверка...';
+        ping.textContent = '';
+
+        var timeout = setTimeout(function() {
+            dot.className = 'status-dot offline';
+            text.textContent = 'Сервер: недоступен';
+            ping.textContent = '';
+            ping.style.color = '#ff4757';
+        }, 5000);
+
+        fetch('https://sexy-devil.ru', { mode: 'no-cors', cache: 'no-store' })
+            .then(function() {
+                clearTimeout(timeout);
+                var ms = Date.now() - start;
+                dot.className = 'status-dot online';
+                text.textContent = 'Сервер: онлайн';
+                ping.textContent = ms + ' ms';
+                ping.style.color = 'var(--accent)';
+            })
+            .catch(function() {
+                clearTimeout(timeout);
+                dot.className = 'status-dot offline';
+                text.textContent = 'Сервер: недоступен';
+                ping.textContent = '';
+                ping.style.color = '#ff4757';
+            });
+    }
+
+    // Проверяем сразу и каждые 30 секунд
+    checkServerStatus();
+    setInterval(checkServerStatus, 30000);
 
     // Загружаем ключи при старте
     if (tgUser) loadUserKeys();
