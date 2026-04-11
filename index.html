@@ -9,351 +9,339 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0a;
-            --card: #111113;
-            --card-hover: #1a1a1e;
+            --bg: #060608;
+            --bg-gradient-top: #0c0c14;
+            --bg-gradient-bottom: #060608;
+            --card: rgba(255,255,255,0.03);
+            --card-hover: rgba(255,255,255,0.06);
+            --card-border: rgba(255,255,255,0.06);
             --accent: #E63946;
-            --accent-glow: rgba(230, 57, 70, 0.25);
-            --accent-dim: rgba(230, 57, 70, 0.1);
+            --accent-glow: rgba(230,57,70,0.3);
             --accent-soft: #ff6b7a;
-            --green: #2ecc71;
-            --yellow: #f1c40f;
-            --text: #f0f0f0;
-            --text-dim: #6b6b76;
-            --border: #1e1e24;
-            --radius: 14px;
+            --accent-dim: rgba(230,57,70,0.08);
+            --green: #22C55E;
+            --green-glow: rgba(34,197,94,0.3);
+            --yellow: #EAB308;
+            --text: #EDEDEF;
+            --text-muted: #6b6b78;
+            --text-dim: #45454f;
+            --radius: 16px;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --font-head: 'Space Grotesk', -apple-system, sans-serif;
+            --font-body: 'Space Grotesk', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-pixel: 'Press Start 2P', cursive;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Space Grotesk', -apple-system, system-ui, sans-serif;
-            background: var(--bg);
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--bg-gradient-top) 0%, var(--bg-gradient-bottom) 100%);
             color: var(--text);
             min-height: 100vh;
             padding: 16px;
             padding-bottom: 100px;
             overflow-x: hidden;
+            position: relative;
         }
+
+        /* ── Ambient Blobs ── */
+        .blob {
+            position: fixed; border-radius: 50%; pointer-events: none;
+            filter: blur(80px); opacity: 0.07; z-index: 0;
+        }
+        .blob-1 {
+            width: 300px; height: 300px; background: var(--accent);
+            top: -80px; right: -80px;
+            animation: blobFloat1 12s ease-in-out infinite;
+        }
+        .blob-2 {
+            width: 250px; height: 250px; background: #5E6AD2;
+            bottom: 20%; left: -60px;
+            animation: blobFloat2 15s ease-in-out infinite;
+        }
+        .blob-3 {
+            width: 200px; height: 200px; background: var(--accent);
+            bottom: -50px; right: 30%;
+            animation: blobFloat3 18s ease-in-out infinite;
+        }
+        @keyframes blobFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,40px)} }
+        @keyframes blobFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,-30px)} }
+        @keyframes blobFloat3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-20px,-40px)} }
+
+        /* ── Loading Screen ── */
+        .loader-screen {
+            position: fixed; inset: 0; z-index: 1000;
+            background: var(--bg);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 24px;
+            transition: opacity 0.5s var(--ease), visibility 0.5s;
+        }
+        .loader-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .loader-logo { width: 64px; height: 64px; border-radius: 16px; animation: loaderPulse 1.5s ease-in-out infinite; }
+        .loader-bar { width: 120px; height: 3px; background: var(--card-border); border-radius: 3px; overflow: hidden; }
+        .loader-fill { width: 0%; height: 100%; background: var(--accent); border-radius: 3px; animation: loaderFill 1.8s var(--ease) forwards; }
+        .loader-text { font-family: var(--font-pixel); font-size: 6px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+        @keyframes loaderPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(0.92);opacity:0.7} }
+        @keyframes loaderFill { 0%{width:0%} 40%{width:60%} 100%{width:100%} }
 
         /* ── Animations ── */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 8px var(--accent-glow); }
-            50% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(230,57,70,0.1); }
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        @keyframes glowPulse { 0%,100%{box-shadow:0 0 12px var(--accent-glow)} 50%{box-shadow:0 0 24px var(--accent-glow),0 0 48px rgba(230,57,70,0.1)} }
+        @keyframes scaleIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+        @keyframes slideRight { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 
-        .animate-in { animation: fadeInUp 0.5s ease-out forwards; opacity: 0; }
-        .animate-in:nth-child(1) { animation-delay: 0.05s; }
-        .animate-in:nth-child(2) { animation-delay: 0.1s; }
-        .animate-in:nth-child(3) { animation-delay: 0.15s; }
-        .animate-in:nth-child(4) { animation-delay: 0.2s; }
-        .animate-in:nth-child(5) { animation-delay: 0.25s; }
+        .anim-up { animation: fadeUp 0.6s var(--ease) both; }
+        .d1{animation-delay:.05s} .d2{animation-delay:.1s} .d3{animation-delay:.15s}
+        .d4{animation-delay:.2s} .d5{animation-delay:.25s} .d6{animation-delay:.3s}
+        .d7{animation-delay:.35s} .d8{animation-delay:.4s}
+
+        /* ── Content (above blobs) ── */
+        #app, #not-in-tg, .bottom-nav { position: relative; z-index: 1; }
 
         /* ── Header ── */
-        .header {
-            text-align: center;
-            padding: 20px 0 16px;
-            animation: fadeIn 0.6s ease-out;
-        }
-
+        .header { text-align: center; padding: 24px 0 20px; }
         .logo-img {
-            width: 80px; height: 80px;
-            margin: 0 auto 14px;
-            border-radius: 20px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 20px rgba(230,57,70,0.3));
-            animation: scaleIn 0.6s ease-out;
+            width: 72px; height: 72px; margin: 0 auto 16px;
+            border-radius: 18px; object-fit: contain;
+            animation: scaleIn 0.7s var(--ease), float 6s ease-in-out infinite 1s;
+            filter: drop-shadow(0 8px 32px rgba(230,57,70,0.35));
         }
-
         .header h1 {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 16px;
-            font-weight: 400;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            background: linear-gradient(135deg, #fff 0%, #ccc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: var(--font-pixel); font-size: 18px;
+            letter-spacing: 4px; text-transform: uppercase;
+            color: #fff;
         }
         .header .subtitle {
-            font-size: 11px; letter-spacing: 3px; color: var(--text-dim);
-            text-transform: uppercase; margin-top: 4px;
+            font-family: var(--font-mono); font-size: 10px;
+            letter-spacing: 3px; color: var(--text-muted);
+            text-transform: uppercase; margin-top: 6px;
         }
         .header .user-greeting {
-            color: var(--accent-soft); font-size: 14px; margin-top: 10px; font-weight: 500;
+            color: var(--accent-soft); font-size: 13px;
+            margin-top: 12px; font-weight: 500;
         }
 
-        /* ── Cards ── */
-        .status-bar {
+        /* ── Glass Cards ── */
+        .glass {
             background: var(--card);
-            border: 1px solid var(--border);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
             border-radius: var(--radius);
-            padding: 16px 18px;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
+            transition: all 0.35s var(--ease);
         }
-        .status-bar:hover { border-color: #2a2a32; }
-        .status-row {
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .glass:hover { background: var(--card-hover); border-color: rgba(255,255,255,0.1); }
+
+        /* ── Status Bars ── */
+        .status-bar { padding: 14px 16px; margin-bottom: 8px; }
+        .status-row { display: flex; justify-content: space-between; align-items: center; }
         .status-indicator { display: flex; align-items: center; gap: 10px; }
-        .status-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #333; flex-shrink: 0;
-        }
-        .status-dot.active {
-            background: var(--accent); box-shadow: 0 0 10px var(--accent-glow);
-            animation: pulse 2s infinite;
-        }
-        .status-dot.online { background: var(--green); box-shadow: 0 0 10px rgba(46,204,113,0.4); animation: pulse 2s infinite; }
+        .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; transition: all 0.3s; }
+        .status-dot.active { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); animation: pulse 2s infinite; }
+        .status-dot.online { background: var(--green); box-shadow: 0 0 10px var(--green-glow); animation: pulse 2.5s infinite; }
         .status-dot.offline { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-        .status-dot.checking { background: var(--yellow); box-shadow: 0 0 10px rgba(241,196,15,0.4); animation: pulse 1s infinite; }
-        .status-label { font-size: 13px; color: var(--text-dim); font-weight: 500; }
-        .status-value { font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+        .status-dot.checking { background: var(--yellow); box-shadow: 0 0 10px rgba(234,179,8,0.3); animation: pulse 0.8s infinite; }
+        .status-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        .status-value { font-size: 12px; font-weight: 600; font-family: var(--font-mono); }
 
         .user-id-bar {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 10px; padding: 12px 16px; margin-bottom: 10px;
+            padding: 10px 16px; margin-bottom: 8px; font-size: 12px;
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 13px;
         }
-        .user-id-bar .label { color: var(--text-dim); font-weight: 500; }
-        .user-id-bar .value { font-family: 'JetBrains Mono', monospace; color: var(--accent-soft); font-size: 12px; }
+        .user-id-bar .label { color: var(--text-muted); font-weight: 500; }
+        .user-id-bar .value { font-family: var(--font-mono); color: var(--accent-soft); font-size: 11px; }
 
         .section-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 11px; font-weight: 700; color: var(--text-dim);
-            text-transform: uppercase; letter-spacing: 2px;
-            margin: 28px 0 14px; padding-left: 2px;
+            font-family: var(--font-head); font-size: 11px; font-weight: 600;
+            color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;
+            margin: 28px 0 12px 2px;
         }
 
-        /* ── Plans ── */
+        /* ── Plan Cards ── */
         .plans { display: flex; flex-direction: column; gap: 8px; }
-
         .plan-card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 16px 18px; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 16px 18px; cursor: pointer;
             display: flex; justify-content: space-between; align-items: center;
             position: relative; overflow: hidden;
         }
         .plan-card::before {
             content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-            width: 3px; background: transparent; transition: background 0.3s;
+            width: 3px; background: transparent; transition: all 0.35s var(--ease);
             border-radius: 0 2px 2px 0;
         }
         .plan-card:active { transform: scale(0.98); }
-        .plan-card.selected {
-            border-color: var(--accent);
-            background: var(--accent-dim);
-        }
-        .plan-card.selected::before { background: var(--accent); }
-
-        .plan-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
-        .plan-info span { font-size: 12px; color: var(--text-dim); }
+        .plan-card.selected { border-color: rgba(230,57,70,0.3); background: var(--accent-dim); }
+        .plan-card.selected::before { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+        .plan-info h3 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .plan-info span { font-size: 11px; color: var(--text-muted); }
         .plan-price { text-align: right; }
-        .plan-price .stars {
-            font-size: 18px; font-weight: 700; color: var(--accent);
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .plan-price .currency { font-size: 12px; color: var(--text-dim); font-weight: 400; }
-        .plan-price .rub { font-size: 11px; color: var(--text-dim); display: block; margin-top: 2px; }
-
+        .plan-price .stars { font-size: 16px; font-weight: 700; color: var(--accent); font-family: var(--font-mono); }
+        .plan-price .rub { font-size: 10px; color: var(--text-dim); display: block; margin-top: 2px; }
         .badge {
-            background: var(--accent); color: #ffffff; font-size: 11px; font-weight: 700;
-            padding: 3px 9px; border-radius: 100px; display: inline-block;
-            margin-left: 6px; vertical-align: middle; letter-spacing: 0.3px;
-            font-family: 'Space Grotesk', sans-serif;
+            background: var(--accent); color: #fff; font-size: 9px; font-weight: 700;
+            padding: 2px 7px; border-radius: 100px; display: inline-block;
+            margin-left: 6px; vertical-align: middle;
         }
 
         /* ── Features ── */
         .features { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .feature {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 16px 12px; text-align: center;
-            transition: all 0.3s ease;
-        }
-        .feature:active { transform: scale(0.97); }
-        .feature-icon { font-size: 22px; margin-bottom: 8px; }
-        .feature-text {
-            font-size: 11px; color: var(--text-dim); line-height: 1.4;
-            font-weight: 500;
-        }
+        .feature { padding: 18px 12px; text-align: center; }
+        .feature:active { transform: scale(0.96); }
+        .feature-icon { font-size: 24px; margin-bottom: 8px; }
+        .feature-text { font-size: 10px; color: var(--text-muted); line-height: 1.4; font-weight: 500; }
 
-        /* ── Button ── */
+        /* ── CTA Button ── */
         .btn-primary {
             width: 100%; padding: 15px;
-            background: var(--accent);
-            color: #fff; border: none; border-radius: var(--radius);
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 15px; font-weight: 700; cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px; letter-spacing: 0.5px;
+            background: var(--accent); color: #fff;
+            border: none; border-radius: var(--radius);
+            font-family: var(--font-head); font-size: 14px; font-weight: 700;
+            cursor: pointer; margin-top: 20px; letter-spacing: 0.5px;
             position: relative; overflow: hidden;
+            transition: all 0.3s var(--ease);
+            box-shadow: 0 4px 24px var(--accent-glow);
         }
         .btn-primary::after {
-            content: '';
-            position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
             animation: shimmer 3s infinite;
         }
-        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
-        .btn-primary:disabled { opacity: 0.3; }
+        .btn-primary:active { transform: scale(0.97); box-shadow: 0 2px 12px var(--accent-glow); }
+        .btn-primary:disabled { opacity: 0.25; box-shadow: none; }
         .btn-primary:disabled::after { animation: none; }
 
-        /* ── Navigation ── */
+        /* ── Bottom Nav ── */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(17,17,19,0.95);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; padding: 10px 0;
-            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            background: rgba(6,6,8,0.85);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid var(--card-border);
+            display: flex; justify-content: space-around;
+            padding: 10px 0; padding-bottom: max(10px, env(safe-area-inset-bottom));
             z-index: 100;
         }
         .nav-item {
             display: flex; flex-direction: column; align-items: center; gap: 3px;
-            color: var(--text-dim); font-size: 10px; cursor: pointer;
-            background: none; border: none; transition: all 0.2s;
-            font-family: 'Space Grotesk', sans-serif; font-weight: 600;
-            letter-spacing: 0.3px; padding: 4px 12px; border-radius: 10px;
+            color: var(--text-dim); font-size: 9px; cursor: pointer;
+            background: none; border: none; font-family: var(--font-body); font-weight: 600;
+            letter-spacing: 0.3px; padding: 4px 16px; border-radius: 10px;
+            transition: all 0.25s var(--ease);
         }
         .nav-item.active { color: var(--accent); }
-        .nav-icon { font-size: 20px; transition: transform 0.2s; }
-        .nav-item.active .nav-icon { transform: scale(1.1); }
+        .nav-icon { font-size: 20px; transition: transform 0.25s var(--ease); }
+        .nav-item.active .nav-icon { transform: scale(1.12); }
 
         /* ── Pages ── */
         .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.3s ease-out; }
+        .page.active { display: block; animation: fadeIn 0.35s var(--ease); }
 
-        /* ── Keys ── */
-        .key-card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 16px 18px; margin-bottom: 8px;
-            transition: all 0.3s ease;
-        }
-        .key-status {
-            display: flex; justify-content: space-between; margin-bottom: 10px;
-            align-items: center;
-        }
+        /* ── Key Cards ── */
+        .key-card { padding: 16px 18px; margin-bottom: 8px; }
+        .key-status { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
         .key-text {
-            font-family: 'JetBrains Mono', monospace; font-size: 10px;
+            font-family: var(--font-mono); font-size: 9px;
             word-break: break-all;
-            background: rgba(230,57,70,0.06); border: 1px solid rgba(230,57,70,0.12);
+            background: rgba(230,57,70,0.04); border: 1px solid rgba(230,57,70,0.1);
             padding: 12px; border-radius: 10px;
-            color: var(--accent-soft); cursor: pointer; line-height: 1.6;
-            transition: all 0.2s;
+            color: var(--accent-soft); cursor: pointer; line-height: 1.7;
+            transition: all 0.25s var(--ease);
         }
-        .key-text:active { background: rgba(230,57,70,0.12); transform: scale(0.99); }
-        .copy-hint { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 10px; }
+        .key-text:active { background: rgba(230,57,70,0.1); border-color: var(--accent); transform: scale(0.99); }
+        .copy-hint { text-align: center; font-size: 10px; color: var(--text-dim); margin-top: 10px; }
 
-        .empty-state { text-align: center; padding: 48px 24px; color: var(--text-dim); }
-        .empty-state .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.5; }
-        .empty-state p { font-size: 13px; line-height: 1.6; }
+        .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+        .empty-state .empty-icon { font-size: 36px; margin-bottom: 16px; opacity: 0.4; }
+        .empty-state p { font-size: 12px; line-height: 1.6; }
 
         /* ── Instructions ── */
         .instruction-card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 16px 18px; margin-bottom: 8px;
-            cursor: pointer; transition: all 0.3s ease;
+            padding: 14px 18px; margin-bottom: 8px; cursor: pointer;
             display: flex; align-items: center; gap: 14px;
         }
-        .instruction-card:active { transform: scale(0.98); border-color: var(--accent); }
-        .instruction-icon { font-size: 28px; flex-shrink: 0; }
-        .instruction-card h3 { font-size: 14px; margin-bottom: 2px; font-weight: 600; }
-        .instruction-card p { font-size: 12px; color: var(--text-dim); line-height: 1.3; }
+        .instruction-card:active { transform: scale(0.98); border-color: rgba(230,57,70,0.2); }
+        .instruction-icon { font-size: 26px; flex-shrink: 0; }
+        .instruction-card h3 { font-size: 13px; margin-bottom: 2px; font-weight: 600; }
+        .instruction-card p { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
 
-        .guide-section {
-            font-size: 12px; font-weight: 700; color: var(--accent);
-            margin-top: 16px; margin-bottom: 8px; letter-spacing: 0.5px;
-        }
-        .guide-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
-        .guide-step { margin-bottom: 10px; line-height: 1.7; font-size: 13px; }
+        .guide-section { font-size: 11px; font-weight: 700; color: var(--accent); margin-top: 16px; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .guide-divider { border: none; border-top: 1px solid var(--card-border); margin: 14px 0; }
+        .guide-step { margin-bottom: 10px; line-height: 1.7; font-size: 12px; }
         .guide-code {
-            font-family: 'JetBrains Mono', monospace;
-            background: rgba(230,57,70,0.08); border: 1px solid rgba(230,57,70,0.15);
-            padding: 2px 8px; border-radius: 5px; color: var(--accent-soft); font-size: 11px;
+            font-family: var(--font-mono);
+            background: rgba(230,57,70,0.06); border: 1px solid rgba(230,57,70,0.12);
+            padding: 2px 8px; border-radius: 5px; color: var(--accent-soft); font-size: 10px;
             display: inline-block; margin: 1px 0;
         }
-        .guide-link {
-            color: var(--accent-soft); text-decoration: none;
-            border-bottom: 1px dashed rgba(230,57,70,0.4);
-            transition: all 0.2s;
-        }
+        .guide-link { color: var(--accent-soft); text-decoration: none; border-bottom: 1px dashed rgba(230,57,70,0.3); transition: color 0.2s; }
         .guide-link:active { color: var(--accent); }
-        .guide-note { font-size: 12px; color: var(--text-dim); font-style: italic; margin-top: 10px; line-height: 1.5; }
+        .guide-note { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 10px; line-height: 1.5; }
 
         /* ── Not in Telegram ── */
-        .not-in-tg {
-            text-align: center; padding: 80px 24px; color: var(--text-dim);
-            animation: fadeIn 0.8s ease-out;
-        }
-        .not-in-tg h2 {
-            color: var(--text); margin-bottom: 12px; font-size: 24px;
-            letter-spacing: 4px;
-        }
-        .not-in-tg a {
-            color: var(--accent); text-decoration: none; font-weight: 600;
-        }
+        .not-in-tg { text-align: center; padding: 80px 24px; color: var(--text-muted); animation: fadeIn 0.8s var(--ease); }
+        .not-in-tg h2 { color: var(--text); margin-bottom: 12px; font-family: var(--font-pixel); font-size: 16px; letter-spacing: 3px; }
+        .not-in-tg a { color: var(--accent); text-decoration: none; font-weight: 600; }
 
-        /* ── Scrollbar ── */
-        ::-webkit-scrollbar { width: 4px; }
+        /* ── Toast notification ── */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-60px);
+            background: var(--accent); color: #fff; padding: 10px 20px; border-radius: 10px;
+            font-size: 12px; font-weight: 600; z-index: 200;
+            opacity: 0; transition: all 0.4s var(--ease); pointer-events: none;
+            box-shadow: 0 8px 32px var(--accent-glow);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
     </style>
 </head>
 <body>
 
-<!-- Экран если открыли не из Telegram -->
+<!-- Ambient Blobs -->
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<!-- Loading Screen -->
+<div class="loader-screen" id="loader">
+    <img src="avatar.png" alt="" class="loader-logo">
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+    <div class="loader-text">connecting</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Not in Telegram -->
 <div id="not-in-tg" class="not-in-tg" style="display:none;">
-    <img src="avatar.png" alt="ZERO VPN" style="width:80px;height:80px;margin:0 auto 20px;display:block;border-radius:18px;filter:drop-shadow(0 4px 20px rgba(230,57,70,0.3));">
+    <img src="avatar.png" alt="ZERO VPN" style="width:72px;height:72px;margin:0 auto 20px;display:block;border-radius:18px;filter:drop-shadow(0 8px 32px rgba(230,57,70,0.3));">
     <h2>ZERO VPN</h2>
     <p style="margin-bottom: 20px;">Откройте это приложение<br>через Telegram-бот:</p>
     <p><a href="https://t.me/zero_vpn_bot">@zero_vpn_bot</a></p>
 </div>
 
-<!-- Основное приложение -->
+<!-- App -->
 <div id="app" style="display:none;">
 
-<!-- Главная -->
+<!-- Home -->
 <div id="page-home" class="page active">
     <div class="header">
         <img src="avatar.png" alt="ZERO VPN" class="logo-img">
         <h1>ZERO VPN</h1>
-        <div class="subtitle">private & secure</div>
+        <div class="subtitle">private &amp; secure</div>
         <div class="user-greeting" id="userGreeting"></div>
     </div>
 
-    <div class="user-id-bar animate-in">
+    <div class="glass user-id-bar anim-up d1">
         <span class="label">Telegram ID</span>
         <span class="value" id="userId">&mdash;</span>
     </div>
 
-    <div class="status-bar animate-in">
+    <div class="glass status-bar anim-up d2">
         <div class="status-row">
             <div class="status-indicator">
                 <div class="status-dot" id="statusDot"></div>
@@ -363,277 +351,146 @@
         </div>
     </div>
 
-    <div class="status-bar animate-in">
+    <div class="glass status-bar anim-up d3">
         <div class="status-row">
             <div class="status-indicator">
                 <div class="status-dot checking" id="serverDot"></div>
-                <span class="status-label" id="serverText">Сервер: проверка...</span>
+                <span class="status-label" id="serverText">Серверы: проверка...</span>
             </div>
             <span class="status-value" id="serverPing"></span>
         </div>
     </div>
 
-    <div class="section-title animate-in">Тарифы</div>
+    <div class="section-title anim-up d4">Тарифы</div>
     <div class="plans">
-        <div class="plan-card animate-in" data-plan="1month" onclick="selectPlan(this)">
-            <div class="plan-info">
-                <h3>1 месяц</h3>
-                <span>Безлимитный трафик</span>
-            </div>
-            <div class="plan-price">
-                <span class="stars">167 <span class="currency">&#11088;</span></span>
-                <span class="rub">~300 руб.</span>
-            </div>
+        <div class="glass plan-card anim-up d4" data-plan="1month" onclick="selectPlan(this)">
+            <div class="plan-info"><h3>1 месяц</h3><span>Безлимитный трафик</span></div>
+            <div class="plan-price"><span class="stars">167 &#11088;</span><span class="rub">~300 руб.</span></div>
         </div>
-        <div class="plan-card animate-in" data-plan="3months" onclick="selectPlan(this)">
-            <div class="plan-info">
-                <h3>3 месяца <span class="badge">-17%</span></h3>
-                <span>Безлимитный трафик</span>
-            </div>
-            <div class="plan-price">
-                <span class="stars">417 <span class="currency">&#11088;</span></span>
-                <span class="rub">~750 руб.</span>
-            </div>
+        <div class="glass plan-card anim-up d5" data-plan="3months" onclick="selectPlan(this)">
+            <div class="plan-info"><h3>3 месяца <span class="badge">-17%</span></h3><span>Безлимитный трафик</span></div>
+            <div class="plan-price"><span class="stars">417 &#11088;</span><span class="rub">~750 руб.</span></div>
         </div>
-        <div class="plan-card animate-in" data-plan="1year" onclick="selectPlan(this)">
-            <div class="plan-info">
-                <h3>1 год <span class="badge">-45%</span></h3>
-                <span>Безлимитный трафик</span>
-            </div>
-            <div class="plan-price">
-                <span class="stars">1667 <span class="currency">&#11088;</span></span>
-                <span class="rub">~3000 руб.</span>
-            </div>
+        <div class="glass plan-card anim-up d6" data-plan="1year" onclick="selectPlan(this)">
+            <div class="plan-info"><h3>1 год <span class="badge">-45%</span></h3><span>Безлимитный трафик</span></div>
+            <div class="plan-price"><span class="stars">1667 &#11088;</span><span class="rub">~3000 руб.</span></div>
         </div>
     </div>
 
-    <button class="btn-primary" id="buyBtn" onclick="buyPlan()" disabled>Выберите тариф</button>
+    <button class="btn-primary anim-up d7" id="buyBtn" onclick="buyPlan()" disabled>Выберите тариф</button>
 
-    <div class="section-title">Преимущества</div>
+    <div class="section-title anim-up d7">Преимущества</div>
     <div class="features">
-        <div class="feature animate-in">
-            <div class="feature-icon">&#128274;</div>
-            <div class="feature-text">Протокол VLESS<br>невидим для DPI</div>
-        </div>
-        <div class="feature animate-in">
-            <div class="feature-icon">&#9889;</div>
-            <div class="feature-text">Высокая<br>скорость</div>
-        </div>
-        <div class="feature animate-in">
-            <div class="feature-icon">&#127758;</div>
-            <div class="feature-text">Обход<br>блокировок</div>
-        </div>
-        <div class="feature animate-in">
-            <div class="feature-icon">&#128241;</div>
-            <div class="feature-text">Все<br>платформы</div>
-        </div>
+        <div class="glass feature anim-up d7"><div class="feature-icon">&#128274;</div><div class="feature-text">Протокол VLESS<br>невидим для DPI</div></div>
+        <div class="glass feature anim-up d7"><div class="feature-icon">&#9889;</div><div class="feature-text">Высокая<br>скорость</div></div>
+        <div class="glass feature anim-up d8"><div class="feature-icon">&#127758;</div><div class="feature-text">Обход<br>блокировок</div></div>
+        <div class="glass feature anim-up d8"><div class="feature-icon">&#128241;</div><div class="feature-text">Все<br>платформы</div></div>
     </div>
 </div>
 
-<!-- Ключи -->
+<!-- Keys -->
 <div id="page-keys" class="page">
-    <div class="section-title" style="margin-top: 16px">Мои ключи</div>
+    <div class="section-title" style="margin-top:16px">Мои ключи</div>
     <div id="keysList">
-        <div class="empty-state">
-            <div class="empty-icon">&#128273;</div>
-            <p>У вас пока нет ключей.<br>Оформите подписку на главной.</p>
-        </div>
+        <div class="empty-state"><div class="empty-icon">&#128273;</div><p>У вас пока нет ключей.<br>Оформите подписку на главной.</p></div>
     </div>
     <p class="copy-hint" id="copyHint" style="display:none;">Нажмите на ключ, чтобы скопировать</p>
 </div>
 
-<!-- Инструкция -->
+<!-- Guide -->
 <div id="page-guide" class="page">
-    <div class="section-title" style="margin-top: 16px">Подключение</div>
-    <div class="instruction-card animate-in" onclick="showGuide('ios')">
-        <div class="instruction-icon">&#63743;</div>
-        <div><h3>iOS</h3><p>Streisand / V2Box (смена региона)</p></div>
-    </div>
-    <div class="instruction-card animate-in" onclick="showGuide('android')">
-        <div class="instruction-icon">&#129302;</div>
-        <div><h3>Android</h3><p>V2rayNG из Google Play или APK</p></div>
-    </div>
-    <div class="instruction-card animate-in" onclick="showGuide('windows')">
-        <div class="instruction-icon">&#128187;</div>
-        <div><h3>Windows</h3><p>Hiddify / Nekoray</p></div>
-    </div>
-    <div class="instruction-card animate-in" onclick="showGuide('macos')">
-        <div class="instruction-icon">&#128421;</div>
-        <div><h3>macOS</h3><p>Hiddify / V2Box</p></div>
-    </div>
-    <div id="guideContent" style="display:none; margin-top: 12px;">
-        <div class="key-card">
-            <div id="guideText" style="font-size: 13px; line-height: 1.8;"></div>
-        </div>
+    <div class="section-title" style="margin-top:16px">Подключение</div>
+    <div class="glass instruction-card anim-up d1" onclick="showGuide('ios')"><div class="instruction-icon">&#63743;</div><div><h3>iOS</h3><p>Streisand / V2Box (смена региона)</p></div></div>
+    <div class="glass instruction-card anim-up d2" onclick="showGuide('android')"><div class="instruction-icon">&#129302;</div><div><h3>Android</h3><p>V2rayNG из Google Play или APK</p></div></div>
+    <div class="glass instruction-card anim-up d3" onclick="showGuide('windows')"><div class="instruction-icon">&#128187;</div><div><h3>Windows</h3><p>Hiddify / Nekoray</p></div></div>
+    <div class="glass instruction-card anim-up d4" onclick="showGuide('macos')"><div class="instruction-icon">&#128421;</div><div><h3>macOS</h3><p>Hiddify / V2Box</p></div></div>
+    <div id="guideContent" style="display:none;margin-top:12px;">
+        <div class="glass key-card"><div id="guideText" style="font-size:12px;line-height:1.8;"></div></div>
     </div>
 </div>
 
-</div><!-- /app -->
+</div>
 
-<!-- Навигация -->
+<!-- Nav -->
 <div class="bottom-nav" id="bottomNav" style="display:none;">
-    <button class="nav-item active" onclick="showPage('home', this)">
-        <span class="nav-icon">&#127968;</span>
-        Главная
-    </button>
-    <button class="nav-item" onclick="showPage('keys', this)">
-        <span class="nav-icon">&#128273;</span>
-        Ключи
-    </button>
-    <button class="nav-item" onclick="showPage('guide', this)">
-        <span class="nav-icon">&#128214;</span>
-        Инструкция
-    </button>
+    <button class="nav-item active" onclick="showPage('home',this)"><span class="nav-icon">&#127968;</span>Главная</button>
+    <button class="nav-item" onclick="showPage('keys',this)"><span class="nav-icon">&#128273;</span>Ключи</button>
+    <button class="nav-item" onclick="showPage('guide',this)"><span class="nav-icon">&#128214;</span>Инструкция</button>
 </div>
 
 <script>
-    // ── Telegram WebApp Init ──
+    // ── Loading ──
+    window.addEventListener('load', function() {
+        setTimeout(function() { document.getElementById('loader').classList.add('hidden'); }, 2000);
+    });
+
+    // ── Toast ──
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 2200);
+    }
+
+    // ── Telegram WebApp ──
     const tg = window.Telegram && window.Telegram.WebApp;
     let tgUser = null;
 
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        tg.ready();
-        tg.expand();
-        try { tg.setHeaderColor('#0a0a0a'); } catch(e) {}
-        try { tg.setBackgroundColor('#0a0a0a'); } catch(e) {}
-
+        tg.ready(); tg.expand();
+        try { tg.setHeaderColor('#060608'); } catch(e) {}
+        try { tg.setBackgroundColor('#060608'); } catch(e) {}
         tgUser = tg.initDataUnsafe.user;
-
         document.getElementById('app').style.display = 'block';
         document.getElementById('bottomNav').style.display = 'flex';
-
-        const firstName = tgUser.first_name || '';
-        const lastName = tgUser.last_name || '';
-        document.getElementById('userGreeting').textContent =
-            'Привет, ' + firstName + (lastName ? ' ' + lastName : '') + '!';
+        var fn = tgUser.first_name || '', ln = tgUser.last_name || '';
+        document.getElementById('userGreeting').textContent = 'Привет, ' + fn + (ln ? ' ' + ln : '') + '!';
         document.getElementById('userId').textContent = tgUser.id;
-
     } else {
         document.getElementById('not-in-tg').style.display = 'block';
     }
 
-    // ── Навигация ──
+    // ── Nav ──
     let selectedPlan = null;
-
     function showPage(name, navEl) {
-        document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-        document.getElementById('page-' + name).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-        if (navEl) navEl.classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+        document.getElementById('page-'+name).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
+        if(navEl) navEl.classList.add('active');
+        window.scrollTo({top:0,behavior:'smooth'});
     }
 
-    // ── Тарифы ──
+    // ── Plans ──
     function selectPlan(el) {
-        document.querySelectorAll('.plan-card').forEach(function(c) { c.classList.remove('selected'); });
-        el.classList.add('selected');
-        selectedPlan = el.dataset.plan;
-
+        document.querySelectorAll('.plan-card').forEach(function(c){c.classList.remove('selected')});
+        el.classList.add('selected'); selectedPlan = el.dataset.plan;
         var btn = document.getElementById('buyBtn');
-        var names = { '1month': '1 месяц', '3months': '3 месяца', '1year': '1 год' };
-        btn.textContent = 'Оплатить  |  ' + (names[selectedPlan] || selectedPlan);
+        var names = {'1month':'1 месяц','3months':'3 месяца','1year':'1 год'};
+        btn.textContent = 'Оплатить  |  ' + (names[selectedPlan]||selectedPlan);
         btn.disabled = false;
     }
-
     function buyPlan() {
-        if (!selectedPlan) {
-            if (tg) tg.showAlert('Выберите тарифный план');
-            return;
-        }
-        if (!tg) {
-            alert('Оплата доступна только через Telegram');
-            return;
-        }
-        // Открываем бота с deep link — бот отправит invoice
-        tg.openTelegramLink('https://t.me/zero_vpn_bot?start=buy_' + selectedPlan);
+        if(!selectedPlan){if(tg)tg.showAlert('Выберите тарифный план');return;}
+        if(!tg){alert('Оплата доступна только через Telegram');return;}
+        tg.openTelegramLink('https://t.me/zero_vpn_bot?start=buy_'+selectedPlan);
         tg.close();
     }
 
-    // ── Инструкции ──
+    // ── Guides ──
     var guides = {
-        ios: '<b>Подключение на iOS</b>'
-            + '<hr class="guide-divider">'
-            + '<p class="guide-note">Приложения Streisand и V2Box недоступны в российском App Store. Сначала нужно сменить регион на США.</p>'
-            + '<div class="guide-section">Часть 1 — Смена региона App Store</div>'
-            + '<div class="guide-step"><b>1.</b> Откройте <b>Настройки</b> &rarr; ваше имя &rarr; <b>Медиаматериалы и покупки</b></div>'
-            + '<div class="guide-step"><b>2.</b> Нажмите <b>Просмотреть</b> &rarr; <b>Страна/регион</b></div>'
-            + '<div class="guide-step"><b>3.</b> Выберите <b>United States</b></div>'
-            + '<div class="guide-step"><b>4.</b> Примите условия соглашения</div>'
-            + '<div class="guide-step"><b>5.</b> Способ оплаты: <b>None</b></div>'
-            + '<div class="guide-step"><b>6.</b> Заполните адрес:<br>'
-            + '<span class="guide-code">Name: John Smith</span><br>'
-            + '<span class="guide-code">Street: 401 N Maple Dr</span><br>'
-            + '<span class="guide-code">City: Beverly Hills</span><br>'
-            + '<span class="guide-code">State: California</span><br>'
-            + '<span class="guide-code">ZIP: 90210</span><br>'
-            + '<span class="guide-code">Phone: +1 310 5550199</span></div>'
-            + '<div class="guide-step"><b>7.</b> Нажмите <b>Done</b> — готово!</div>'
-            + '<div class="guide-section">Часть 2 — Установка и подключение</div>'
-            + '<div class="guide-step"><b>1.</b> В App Store найдите и установите:<br>'
-            + '<a class="guide-link" href="https://apps.apple.com/app/streisand/id6450534064" target="_blank">Streisand (App Store)</a> или '
-            + '<a class="guide-link" href="https://apps.apple.com/app/v2box-v2ray-client/id6446814690" target="_blank">V2Box (App Store)</a></div>'
-            + '<div class="guide-step"><b>2.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
-            + '<div class="guide-step"><b>3.</b> В приложении: <b>+</b> &rarr; <b>Импорт из буфера обмена</b></div>'
-            + '<div class="guide-step"><b>4.</b> Нажмите на профиль для подключения</div>'
-            + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>'
-            + '<p class="guide-note">После установки можно вернуть регион App Store обратно на Россию.</p>',
-
-        android: '<b>Подключение на Android</b>'
-            + '<hr class="guide-divider">'
-            + '<div class="guide-section">Вариант 1 — Google Play</div>'
-            + '<div class="guide-step"><b>1.</b> Установите <b>V2rayNG</b>:<br>'
-            + '<a class="guide-link" href="https://play.google.com/store/apps/details?id=com.v2ray.ang" target="_blank">V2rayNG (Google Play)</a></div>'
-            + '<div class="guide-section">Вариант 2 — APK (если нет в Play)</div>'
-            + '<div class="guide-step"><b>1.</b> Скачайте последний APK:<br>'
-            + '<a class="guide-link" href="https://github.com/2dust/v2rayNG/releases" target="_blank">github.com/2dust/v2rayNG/releases</a></div>'
-            + '<div class="guide-step"><b>2.</b> Разрешите установку из неизвестных источников</div>'
-            + '<div class="guide-step"><b>3.</b> Установите приложение</div>'
-            + '<div class="guide-section">Подключение</div>'
-            + '<div class="guide-step"><b>1.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
-            + '<div class="guide-step"><b>2.</b> В V2rayNG: <b>+</b> &rarr; <b>Импорт из буфера обмена</b></div>'
-            + '<div class="guide-step"><b>3.</b> Нажмите <b>&#9654; Play</b></div>'
-            + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>',
-
-        windows: '<b>Подключение на Windows</b>'
-            + '<hr class="guide-divider">'
-            + '<div class="guide-section">Установка</div>'
-            + '<div class="guide-step"><b>1.</b> Скачайте одну из программ:<br>'
-            + '<a class="guide-link" href="https://github.com/hiddify/hiddify-app/releases" target="_blank">Hiddify (GitHub)</a><br>'
-            + '<a class="guide-link" href="https://github.com/MatsuriDayo/nekoray/releases" target="_blank">Nekoray (GitHub)</a></div>'
-            + '<div class="guide-step"><b>2.</b> Установите и откройте</div>'
-            + '<div class="guide-section">Подключение</div>'
-            + '<div class="guide-step"><b>3.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
-            + '<div class="guide-step"><b>4.</b> В программе: <b>Добавить</b> &rarr; <b>Из буфера обмена</b></div>'
-            + '<div class="guide-step"><b>5.</b> Включите подключение</div>'
-            + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>',
-
-        macos: '<b>Подключение на macOS</b>'
-            + '<hr class="guide-divider">'
-            + '<p class="guide-note">Приложения V2Box и Hiddify могут быть недоступны в российском App Store. Смените регион на США (см. инструкцию для iOS) или скачайте напрямую.</p>'
-            + '<div class="guide-section">Вариант 1 — App Store (регион США)</div>'
-            + '<div class="guide-step"><b>1.</b> Смените регион на США (инструкция в разделе iOS)</div>'
-            + '<div class="guide-step"><b>2.</b> Скачайте из App Store:<br>'
-            + '<a class="guide-link" href="https://apps.apple.com/app/v2box-v2ray-client/id6446814690" target="_blank">V2Box (App Store)</a> или '
-            + '<a class="guide-link" href="https://apps.apple.com/app/streisand/id6450534064" target="_blank">Streisand (App Store)</a></div>'
-            + '<div class="guide-section">Вариант 2 — Скачать напрямую</div>'
-            + '<div class="guide-step"><b>1.</b> Скачайте <b>Hiddify</b>:<br>'
-            + '<a class="guide-link" href="https://github.com/hiddify/hiddify-app/releases" target="_blank">Hiddify (GitHub)</a></div>'
-            + '<div class="guide-section">Подключение</div>'
-            + '<div class="guide-step"><b>1.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
-            + '<div class="guide-step"><b>2.</b> В приложении: <b>+</b> &rarr; <b>Импорт из буфера обмена</b></div>'
-            + '<div class="guide-step"><b>3.</b> Включите подключение</div>'
-            + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>'
+        ios: '<b>Подключение на iOS</b><hr class="guide-divider"><p class="guide-note">Приложения Streisand и V2Box недоступны в российском App Store. Сначала нужно сменить регион на США.</p><div class="guide-section">Часть 1 — Смена региона App Store</div><div class="guide-step"><b>1.</b> Откройте <b>Настройки</b> &rarr; ваше имя &rarr; <b>Медиаматериалы и покупки</b></div><div class="guide-step"><b>2.</b> Нажмите <b>Просмотреть</b> &rarr; <b>Страна/регион</b></div><div class="guide-step"><b>3.</b> Выберите <b>United States</b></div><div class="guide-step"><b>4.</b> Примите условия соглашения</div><div class="guide-step"><b>5.</b> Способ оплаты: <b>None</b></div><div class="guide-step"><b>6.</b> Заполните адрес:<br><span class="guide-code">Name: John Smith</span><br><span class="guide-code">Street: 401 N Maple Dr</span><br><span class="guide-code">City: Beverly Hills</span><br><span class="guide-code">State: California</span><br><span class="guide-code">ZIP: 90210</span><br><span class="guide-code">Phone: +1 310 5550199</span></div><div class="guide-step"><b>7.</b> Нажмите <b>Done</b> — готово!</div><div class="guide-section">Часть 2 — Установка и подключение</div><div class="guide-step"><b>1.</b> В App Store установите:<br><a class="guide-link" href="https://apps.apple.com/app/streisand/id6450534064" target="_blank">Streisand</a> или <a class="guide-link" href="https://apps.apple.com/app/v2box-v2ray-client/id6446814690" target="_blank">V2Box</a></div><div class="guide-step"><b>2.</b> Скопируйте VLESS-ключ (раздел <b>Ключи</b>)</div><div class="guide-step"><b>3.</b> В приложении: <b>+</b> &rarr; <b>Импорт из буфера обмена</b></div><div class="guide-step"><b>4.</b> Нажмите на профиль для подключения</div><div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div><p class="guide-note">После установки можно вернуть регион обратно на Россию.</p>',
+        android: '<b>Подключение на Android</b><hr class="guide-divider"><div class="guide-section">Вариант 1 — Google Play</div><div class="guide-step"><b>1.</b> Установите <a class="guide-link" href="https://play.google.com/store/apps/details?id=com.v2ray.ang" target="_blank">V2rayNG</a></div><div class="guide-section">Вариант 2 — APK</div><div class="guide-step"><b>1.</b> Скачайте APK: <a class="guide-link" href="https://github.com/2dust/v2rayNG/releases" target="_blank">github.com/2dust/v2rayNG/releases</a></div><div class="guide-step"><b>2.</b> Разрешите установку из неизвестных источников</div><div class="guide-step"><b>3.</b> Установите приложение</div><div class="guide-section">Подключение</div><div class="guide-step"><b>1.</b> Скопируйте VLESS-ключ (раздел <b>Ключи</b>)</div><div class="guide-step"><b>2.</b> В V2rayNG: <b>+</b> &rarr; <b>Импорт из буфера обмена</b></div><div class="guide-step"><b>3.</b> Нажмите <b>&#9654; Play</b></div><div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>',
+        windows: '<b>Подключение на Windows</b><hr class="guide-divider"><div class="guide-section">Установка</div><div class="guide-step"><b>1.</b> Скачайте:<br><a class="guide-link" href="https://github.com/hiddify/hiddify-app/releases" target="_blank">Hiddify</a> или <a class="guide-link" href="https://github.com/MatsuriDayo/nekoray/releases" target="_blank">Nekoray</a></div><div class="guide-step"><b>2.</b> Установите и откройте</div><div class="guide-section">Подключение</div><div class="guide-step"><b>3.</b> Скопируйте VLESS-ключ (раздел <b>Ключи</b>)</div><div class="guide-step"><b>4.</b> <b>Добавить</b> &rarr; <b>Из буфера обмена</b></div><div class="guide-step"><b>5.</b> Включите подключение</div><div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>',
+        macos: '<b>Подключение на macOS</b><hr class="guide-divider"><p class="guide-note">V2Box и Hiddify могут быть недоступны в российском App Store.</p><div class="guide-section">Вариант 1 — App Store (США)</div><div class="guide-step"><b>1.</b> Смените регион (инструкция в разделе iOS)</div><div class="guide-step"><b>2.</b> Скачайте <a class="guide-link" href="https://apps.apple.com/app/v2box-v2ray-client/id6446814690" target="_blank">V2Box</a> или <a class="guide-link" href="https://apps.apple.com/app/streisand/id6450534064" target="_blank">Streisand</a></div><div class="guide-section">Вариант 2 — Напрямую</div><div class="guide-step"><b>1.</b> Скачайте <a class="guide-link" href="https://github.com/hiddify/hiddify-app/releases" target="_blank">Hiddify</a></div><div class="guide-section">Подключение</div><div class="guide-step"><b>1.</b> Скопируйте VLESS-ключ (раздел <b>Ключи</b>)</div><div class="guide-step"><b>2.</b> <b>+</b> &rarr; <b>Импорт из буфера обмена</b></div><div class="guide-step"><b>3.</b> Включите подключение</div><div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>'
     };
-
-    function showGuide(platform) {
+    function showGuide(p) {
         var el = document.getElementById('guideContent');
-        document.getElementById('guideText').innerHTML = guides[platform];
+        document.getElementById('guideText').innerHTML = guides[p];
         el.style.display = 'block';
-        el.style.animation = 'fadeInUp 0.3s ease-out';
-        el.scrollIntoView({ behavior: 'smooth' });
+        el.style.animation = 'fadeUp 0.4s var(--ease)';
+        el.scrollIntoView({behavior:'smooth'});
     }
 
-    // ── Загрузка ключей из Google Sheets ──
+    // ── Keys from Google Sheets ──
     var SHEET_ID = '1Sb0TKTA020ywaaYwxoQzYRQh_P22vzIhggzM6qvrJuk';
     var KEYS_GID = '276659725';
 
@@ -641,173 +498,73 @@
         if (!tgUser) return;
         var uid = String(tgUser.id);
         var uname = (tgUser.username || '').toLowerCase().trim();
-        var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID
-            + '/gviz/tq?tqx=out:json&gid=' + KEYS_GID + '&_t=' + Date.now();
-
-        fetch(url, { cache: 'no-store' })
-            .then(function(r) { return r.text(); })
-            .then(function(text) {
-                var start = text.indexOf('(');
-                var end = text.lastIndexOf(')');
-                if (start === -1 || end === -1) return;
-                var json = JSON.parse(text.substring(start + 1, end));
-                var rows = json.table.rows || [];
-                var userKeys = [];
-                for (var i = 0; i < rows.length; i++) {
-                    var cells = rows[i].c;
-                    if (!cells || !cells[0] || !cells[0].v) continue;
-                    var val0 = String(cells[0].v);
-                    if (val0 === 'vless_key') continue;
-                    // Колонка D (index 3) = telegram_id, колонка E (index 4) = username
-                    var keyTgId = (cells[3] && cells[3].v !== null) ? String(cells[3].v).trim() : '';
-                    var keyUsername = (cells[4] && cells[4].v !== null) ? String(cells[4].v).toLowerCase().trim() : '';
-                    var match = false;
-                    if (keyTgId === uid) match = true;
-                    if (uname.length > 0 && keyUsername === uname) match = true;
-                    if (match) {
-                        userKeys.push({
-                            key: val0,
-                            status: (cells[1] && cells[1].v) ? String(cells[1].v) : '',
-                            plan: (cells[2] && cells[2].v) ? String(cells[2].v) : '',
-                            expires: (cells[6] && cells[6].v) ? String(cells[6].v) : '',
-                        });
-                    }
+        var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&gid=' + KEYS_GID + '&_t=' + Date.now();
+        fetch(url, {cache:'no-store'}).then(function(r){return r.text()}).then(function(text){
+            var s=text.indexOf('('), e=text.lastIndexOf(')');
+            if(s===-1||e===-1) return;
+            var json=JSON.parse(text.substring(s+1,e));
+            var rows=json.table.rows||[], userKeys=[];
+            for(var i=0;i<rows.length;i++){
+                var c=rows[i].c;
+                if(!c||!c[0]||!c[0].v) continue;
+                var v=String(c[0].v); if(v==='vless_key') continue;
+                var tid=(c[3]&&c[3].v!==null)?String(c[3].v).trim():'';
+                var un=(c[4]&&c[4].v!==null)?String(c[4].v).toLowerCase().trim():'';
+                if(tid===uid||(uname.length>0&&un===uname)){
+                    userKeys.push({
+                        key:v,
+                        status:(c[1]&&c[1].v)?String(c[1].v):'',
+                        plan:(c[2]&&c[2].v)?String(c[2].v):'',
+                        expires:(c[6]&&c[6].v)?String(c[6].v):''
+                    });
                 }
-                renderKeys(userKeys);
-                updateStatus(userKeys);
-            })
-            .catch(function(e) {
-                console.log('Sheets fetch error:', e);
-            });
+            }
+            renderKeys(userKeys); updateStatus(userKeys);
+        }).catch(function(e){console.log('Sheets error:',e)});
     }
-
     function renderKeys(keys) {
-        var container = document.getElementById('keysList');
-        var hint = document.getElementById('copyHint');
-        if (!keys.length) {
-            container.innerHTML = '<div class="empty-state">'
-                + '<div class="empty-icon">&#128273;</div>'
-                + '<p>У вас пока нет ключей.<br>Оформите подписку на главной.</p></div>';
-            hint.style.display = 'none';
-            return;
+        var el=document.getElementById('keysList'), hint=document.getElementById('copyHint');
+        if(!keys.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">&#128273;</div><p>У вас пока нет ключей.<br>Оформите подписку на главной.</p></div>';hint.style.display='none';return;}
+        var h='';
+        for(var i=0;i<keys.length;i++){
+            var k=keys[i], perm=k.expires.indexOf('9999')!==-1;
+            var st=perm?'Бессрочный':(k.status||'Активен');
+            var ex=perm?'\u221E':(k.expires?k.expires.substring(0,10):'\u2014');
+            h+='<div class="glass key-card anim-up"><div class="key-status"><span style="color:var(--accent);font-weight:600;font-size:12px;">'+st+'</span><span style="color:var(--text-muted);font-size:11px;font-family:var(--font-mono);">'+(perm?'':'до ')+ex+'</span></div><div class="key-text">'+k.key+'</div></div>';
         }
-        var html = '';
-        for (var i = 0; i < keys.length; i++) {
-            var k = keys[i];
-            var isPermanent = k.expires.indexOf('9999') !== -1;
-            var statusText = isPermanent ? 'Бессрочный' : (k.status || 'Активен');
-            var expiresText = isPermanent ? '\u221E' : (k.expires ? k.expires.substring(0, 10) : '\u2014');
-
-            html += '<div class="key-card animate-in">'
-                + '<div class="key-status">'
-                + '<span style="color:var(--accent);font-weight:600;font-size:13px;">' + statusText + '</span>'
-                + '<span style="color:var(--text-dim);font-size:12px;font-family:JetBrains Mono,monospace;">'
-                + (isPermanent ? '' : 'до ') + expiresText + '</span>'
-                + '</div>'
-                + '<div class="key-text">' + k.key + '</div>'
-                + '</div>';
-        }
-        container.innerHTML = html;
-        hint.style.display = 'block';
+        el.innerHTML=h; hint.style.display='block';
     }
-
     function updateStatus(keys) {
-        var dot = document.getElementById('statusDot');
-        var text = document.getElementById('statusText');
-        var expiry = document.getElementById('statusExpiry');
-
-        if (keys.length > 0) {
-            dot.classList.add('active');
-            var isPermanent = keys[0].expires.indexOf('9999') !== -1;
-            text.textContent = 'VPN активен';
-            expiry.textContent = isPermanent ? 'Бессрочный' : ('до ' + keys[0].expires.substring(0, 10));
-            expiry.style.color = 'var(--accent)';
-        } else {
-            dot.classList.remove('active');
-            text.textContent = 'Нет подписки';
-            expiry.textContent = '';
-        }
+        var d=document.getElementById('statusDot'), t=document.getElementById('statusText'), ex=document.getElementById('statusExpiry');
+        if(keys.length>0){
+            d.classList.add('active'); var perm=keys[0].expires.indexOf('9999')!==-1;
+            t.textContent='VPN активен'; ex.textContent=perm?'Бессрочный':('до '+keys[0].expires.substring(0,10));
+            ex.style.color='var(--accent)';
+        } else { d.classList.remove('active'); t.textContent='Нет подписки'; ex.textContent=''; }
     }
 
-    // ── Проверка статуса VPN-серверов (из Google Sheets) ──
-    var STATUS_GID = '1527178392';
-
+    // ── Server Status ──
     function checkServerStatus() {
-        var dot = document.getElementById('serverDot');
-        var text = document.getElementById('serverText');
-        var ping = document.getElementById('serverPing');
-
-        dot.className = 'status-dot checking';
-        text.textContent = 'Серверы: проверка...';
-        ping.textContent = '';
-
-        var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID
-            + '/gviz/tq?tqx=out:json&gid=' + STATUS_GID;
-
-        fetch(url)
-            .then(function(r) { return r.text(); })
-            .then(function(txt) {
-                var start = txt.indexOf('(');
-                var end = txt.lastIndexOf(')');
-                var json = JSON.parse(txt.substring(start + 1, end));
-                var rows = json.table.rows;
-
-                var total = 0, onlineCount = 0, totalPing = 0;
-                for (var i = 0; i < rows.length; i++) {
-                    var c = rows[i].c;
-                    if (!c[0] || !c[1]) continue;
-                    var name = c[0].v || '';
-                    if (name === 'сервер') continue;
-                    total++;
-                    var isOnline = (c[1].v || '').toLowerCase() === 'да';
-                    var p = c[2] ? parseInt(c[2].v) || 0 : 0;
-                    if (isOnline) { onlineCount++; totalPing += p; }
-                }
-
-                var avgPing = onlineCount > 0 ? Math.round(totalPing / onlineCount) : 0;
-
-                if (total === 0) {
-                    dot.className = 'status-dot checking';
-                    text.textContent = 'Серверы: ожидание...';
-                    ping.textContent = '';
-                } else if (onlineCount === total) {
-                    dot.className = 'status-dot online';
-                    text.textContent = 'Серверы: онлайн (' + total + '/' + total + ')';
-                    ping.textContent = avgPing + ' ms';
-                    ping.style.color = 'var(--green)';
-                } else if (onlineCount > 0) {
-                    dot.className = 'status-dot checking';
-                    text.textContent = 'Серверы: частично (' + onlineCount + '/' + total + ')';
-                    ping.textContent = avgPing + ' ms';
-                    ping.style.color = 'var(--yellow)';
-                } else {
-                    dot.className = 'status-dot offline';
-                    text.textContent = 'Серверы: недоступны';
-                    ping.textContent = '';
-                    ping.style.color = 'var(--accent)';
-                }
-            })
-            .catch(function() {
-                dot.className = 'status-dot checking';
-                text.textContent = 'Серверы: ожидание...';
-                ping.textContent = '';
-            });
+        var d=document.getElementById('serverDot'), t=document.getElementById('serverText'), p=document.getElementById('serverPing');
+        d.className='status-dot checking'; t.textContent='Серверы: проверка...'; p.textContent='';
+        fetch('http://213.139.229.81:8880/status').then(function(r){return r.json()}).then(function(srv){
+            var on=0,avg=0; srv.forEach(function(s){if(s.online){on++;avg+=s.ping}});
+            if(on>0)avg=Math.round(avg/on);
+            if(on===srv.length){d.className='status-dot online';t.textContent='Серверы: онлайн ('+srv.length+'/'+srv.length+')';p.textContent=avg+' ms';p.style.color='var(--green)';}
+            else if(on>0){d.className='status-dot checking';t.textContent='Серверы: частично ('+on+'/'+srv.length+')';p.textContent=avg+' ms';p.style.color='var(--yellow)';}
+            else{d.className='status-dot offline';t.textContent='Серверы: недоступны';p.textContent='';p.style.color='var(--accent)';}
+        }).catch(function(){d.className='status-dot offline';t.textContent='Серверы: нет данных';p.textContent='';});
     }
+    checkServerStatus(); setInterval(checkServerStatus,30000);
+    if(tgUser) loadUserKeys();
 
-    checkServerStatus();
-    setInterval(checkServerStatus, 30000);
-
-    if (tgUser) loadUserKeys();
-
-    // ── Копирование ключа ──
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('key-text')) {
-            var el = e.target;
-            navigator.clipboard.writeText(el.textContent).then(function() {
-                el.style.borderColor = 'var(--accent)';
-                setTimeout(function() { el.style.borderColor = ''; }, 600);
-                if (tg) tg.showAlert('Ключ скопирован!');
-                else alert('Скопировано!');
+    // ── Copy Key ──
+    document.addEventListener('click',function(e){
+        if(e.target.classList.contains('key-text')){
+            navigator.clipboard.writeText(e.target.textContent).then(function(){
+                showToast('Ключ скопирован!');
+                e.target.style.borderColor='var(--accent)';
+                setTimeout(function(){e.target.style.borderColor='';},800);
             });
         }
     });
