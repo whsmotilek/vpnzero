@@ -722,7 +722,9 @@
         }
     }
 
-    // ── Проверка статуса VPN-серверов ──
+    // ── Проверка статуса VPN-серверов (из Google Sheets) ──
+    var STATUS_GID = '1527178392';
+
     function checkServerStatus() {
         var dot = document.getElementById('serverDot');
         var text = document.getElementById('serverText');
@@ -732,24 +734,43 @@
         text.textContent = 'Серверы: проверка...';
         ping.textContent = '';
 
-        fetch('http://213.139.229.81:8880/status')
-            .then(function(r) { return r.json(); })
-            .then(function(servers) {
-                var allOnline = servers.every(function(s) { return s.online; });
-                var anyOnline = servers.some(function(s) { return s.online; });
-                var avgPing = 0;
-                var onlineCount = 0;
-                servers.forEach(function(s) { if (s.online) { avgPing += s.ping; onlineCount++; } });
-                if (onlineCount > 0) avgPing = Math.round(avgPing / onlineCount);
+        var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID
+            + '/gviz/tq?tqx=out:json&gid=' + STATUS_GID;
 
-                if (allOnline) {
+        fetch(url)
+            .then(function(r) { return r.text(); })
+            .then(function(txt) {
+                var start = txt.indexOf('(');
+                var end = txt.lastIndexOf(')');
+                var json = JSON.parse(txt.substring(start + 1, end));
+                var rows = json.table.rows;
+
+                var total = 0, onlineCount = 0, totalPing = 0;
+                for (var i = 0; i < rows.length; i++) {
+                    var c = rows[i].c;
+                    if (!c[0] || !c[1]) continue;
+                    var name = c[0].v || '';
+                    if (name === 'сервер') continue;
+                    total++;
+                    var isOnline = (c[1].v || '').toLowerCase() === 'да';
+                    var p = c[2] ? parseInt(c[2].v) || 0 : 0;
+                    if (isOnline) { onlineCount++; totalPing += p; }
+                }
+
+                var avgPing = onlineCount > 0 ? Math.round(totalPing / onlineCount) : 0;
+
+                if (total === 0) {
+                    dot.className = 'status-dot checking';
+                    text.textContent = 'Серверы: ожидание...';
+                    ping.textContent = '';
+                } else if (onlineCount === total) {
                     dot.className = 'status-dot online';
-                    text.textContent = 'Серверы: онлайн (' + servers.length + '/' + servers.length + ')';
+                    text.textContent = 'Серверы: онлайн (' + total + '/' + total + ')';
                     ping.textContent = avgPing + ' ms';
                     ping.style.color = 'var(--green)';
-                } else if (anyOnline) {
+                } else if (onlineCount > 0) {
                     dot.className = 'status-dot checking';
-                    text.textContent = 'Серверы: частично (' + onlineCount + '/' + servers.length + ')';
+                    text.textContent = 'Серверы: частично (' + onlineCount + '/' + total + ')';
                     ping.textContent = avgPing + ' ms';
                     ping.style.color = 'var(--yellow)';
                 } else {
@@ -760,8 +781,8 @@
                 }
             })
             .catch(function() {
-                dot.className = 'status-dot offline';
-                text.textContent = 'Серверы: нет данных';
+                dot.className = 'status-dot checking';
+                text.textContent = 'Серверы: ожидание...';
                 ping.textContent = '';
             });
     }
