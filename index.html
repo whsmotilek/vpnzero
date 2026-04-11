@@ -77,7 +77,7 @@
             transition: opacity 0.5s var(--ease), visibility 0.5s;
         }
         .loader-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        .loader-logo { width: 64px; height: 64px; border-radius: 16px; animation: loaderPulse 1.5s ease-in-out infinite; }
+        .loader-logo { width: 64px; height: 64px; animation: loaderPulse 1.5s ease-in-out infinite; filter: drop-shadow(0 0 20px var(--accent-glow)); }
         .loader-bar { width: 120px; height: 3px; background: var(--card-border); border-radius: 3px; overflow: hidden; }
         .loader-fill { width: 0%; height: 100%; background: var(--accent); border-radius: 3px; animation: loaderFill 1.8s var(--ease) forwards; }
         .loader-text { font-family: var(--font-pixel); font-size: 6px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
@@ -104,12 +104,36 @@
 
         /* ── Header ── */
         .header { text-align: center; padding: 24px 0 20px; }
-        .logo-img {
-            width: 72px; height: 72px; margin: 0 auto 16px;
-            border-radius: 18px; object-fit: contain;
-            animation: scaleIn 0.7s var(--ease), float 6s ease-in-out infinite 1s;
-            filter: drop-shadow(0 8px 32px rgba(230,57,70,0.35));
+        .logo-wrap {
+            position: relative; width: 90px; height: 90px;
+            margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;
         }
+        .logo-ring {
+            position: absolute; inset: -4px; border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: var(--accent); border-right-color: rgba(230,57,70,0.3);
+            animation: logoSpin 3s linear infinite;
+        }
+        .logo-ring-2 {
+            position: absolute; inset: -10px; border-radius: 50%;
+            border: 1px solid transparent;
+            border-bottom-color: rgba(230,57,70,0.2); border-left-color: rgba(94,106,210,0.2);
+            animation: logoSpin 5s linear infinite reverse;
+        }
+        .logo-glow {
+            position: absolute; inset: 0; border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            animation: glowBreath 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .logo-img {
+            width: 72px; height: 72px; object-fit: contain;
+            position: relative; z-index: 1;
+            animation: scaleIn 0.7s var(--ease), float 6s ease-in-out infinite 1s;
+            filter: drop-shadow(0 4px 16px rgba(230,57,70,0.4));
+        }
+        @keyframes logoSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes glowBreath { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.1)} }
         .header h1 {
             font-family: var(--font-pixel); font-size: 18px;
             letter-spacing: 4px; text-transform: uppercase;
@@ -318,7 +342,7 @@
 
 <!-- Not in Telegram -->
 <div id="not-in-tg" class="not-in-tg" style="display:none;">
-    <img src="avatar.png" alt="ZERO VPN" style="width:72px;height:72px;margin:0 auto 20px;display:block;border-radius:18px;filter:drop-shadow(0 8px 32px rgba(230,57,70,0.3));">
+    <div class="logo-wrap" style="margin:0 auto 20px;"><div class="logo-ring"></div><div class="logo-ring-2"></div><div class="logo-glow"></div><img src="avatar.png" alt="ZERO VPN" class="logo-img"></div>
     <h2>ZERO VPN</h2>
     <p style="margin-bottom: 20px;">Откройте это приложение<br>через Telegram-бот:</p>
     <p><a href="https://t.me/zero_vpn_bot">@zero_vpn_bot</a></p>
@@ -330,7 +354,7 @@
 <!-- Home -->
 <div id="page-home" class="page active">
     <div class="header">
-        <img src="avatar.png" alt="ZERO VPN" class="logo-img">
+        <div class="logo-wrap"><div class="logo-ring"></div><div class="logo-ring-2"></div><div class="logo-glow"></div><img src="avatar.png" alt="ZERO VPN" class="logo-img"></div>
         <h1>ZERO VPN</h1>
         <div class="subtitle">private &amp; secure</div>
         <div class="user-greeting" id="userGreeting"></div>
