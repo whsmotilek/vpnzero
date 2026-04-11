@@ -722,39 +722,47 @@
         }
     }
 
-    // ── Проверка статуса VPN-сервера ──
+    // ── Проверка статуса VPN-серверов ──
     function checkServerStatus() {
         var dot = document.getElementById('serverDot');
         var text = document.getElementById('serverText');
         var ping = document.getElementById('serverPing');
-        var start = Date.now();
 
         dot.className = 'status-dot checking';
-        text.textContent = 'Сервер: проверка...';
+        text.textContent = 'Серверы: проверка...';
         ping.textContent = '';
 
-        var timeout = setTimeout(function() {
-            dot.className = 'status-dot offline';
-            text.textContent = 'Сервер: недоступен';
-            ping.textContent = '';
-            ping.style.color = 'var(--accent)';
-        }, 5000);
+        fetch('http://213.139.229.81:8880/status')
+            .then(function(r) { return r.json(); })
+            .then(function(servers) {
+                var allOnline = servers.every(function(s) { return s.online; });
+                var anyOnline = servers.some(function(s) { return s.online; });
+                var avgPing = 0;
+                var onlineCount = 0;
+                servers.forEach(function(s) { if (s.online) { avgPing += s.ping; onlineCount++; } });
+                if (onlineCount > 0) avgPing = Math.round(avgPing / onlineCount);
 
-        fetch('https://sexy-devil.ru', { mode: 'no-cors', cache: 'no-store' })
-            .then(function() {
-                clearTimeout(timeout);
-                var ms = Date.now() - start;
-                dot.className = 'status-dot online';
-                text.textContent = 'Сервер: онлайн';
-                ping.textContent = ms + ' ms';
-                ping.style.color = 'var(--green)';
+                if (allOnline) {
+                    dot.className = 'status-dot online';
+                    text.textContent = 'Серверы: онлайн (' + servers.length + '/' + servers.length + ')';
+                    ping.textContent = avgPing + ' ms';
+                    ping.style.color = 'var(--green)';
+                } else if (anyOnline) {
+                    dot.className = 'status-dot checking';
+                    text.textContent = 'Серверы: частично (' + onlineCount + '/' + servers.length + ')';
+                    ping.textContent = avgPing + ' ms';
+                    ping.style.color = 'var(--yellow)';
+                } else {
+                    dot.className = 'status-dot offline';
+                    text.textContent = 'Серверы: недоступны';
+                    ping.textContent = '';
+                    ping.style.color = 'var(--accent)';
+                }
             })
             .catch(function() {
-                clearTimeout(timeout);
                 dot.className = 'status-dot offline';
-                text.textContent = 'Сервер: недоступен';
+                text.textContent = 'Серверы: нет данных';
                 ping.textContent = '';
-                ping.style.color = 'var(--accent)';
             });
     }
 
