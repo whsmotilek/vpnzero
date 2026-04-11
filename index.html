@@ -546,11 +546,9 @@
             alert('Оплата доступна только через Telegram');
             return;
         }
-        tg.sendData(JSON.stringify({
-            action: 'buy',
-            plan: selectedPlan,
-            user_id: tgUser ? tgUser.id : null
-        }));
+        // Открываем бота с deep link — бот отправит invoice
+        tg.openTelegramLink('https://t.me/zero_vpn_bot?start=buy_' + selectedPlan);
+        tg.close();
     }
 
     // ── Инструкции ──
