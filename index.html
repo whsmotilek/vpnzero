@@ -543,15 +543,27 @@
         } else { d.classList.remove('active'); t.textContent='Нет подписки'; ex.textContent=''; }
     }
 
-    // ── Server Status ──
+    // ── Server Status from Google Sheets ──
+    var STATUS_GID = '1527178392';
     function checkServerStatus() {
         var d=document.getElementById('serverDot'), t=document.getElementById('serverText'), p=document.getElementById('serverPing');
         d.className='status-dot checking'; t.textContent='Серверы: проверка...'; p.textContent='';
-        fetch('http://213.139.229.81:8880/status').then(function(r){return r.json()}).then(function(srv){
-            var on=0,avg=0; srv.forEach(function(s){if(s.online){on++;avg+=s.ping}});
+        var url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&gid='+STATUS_GID+'&_t='+Date.now();
+        fetch(url,{cache:'no-store'}).then(function(r){return r.text()}).then(function(text){
+            var s=text.indexOf('('), e=text.lastIndexOf(')');
+            if(s===-1||e===-1) throw 'parse';
+            var json=JSON.parse(text.substring(s+1,e));
+            var rows=json.table.rows||[], on=0, total=0, avg=0;
+            for(var i=0;i<rows.length;i++){
+                var c=rows[i].c; if(!c||!c[0]||!c[0].v||c[0].v==='server') continue;
+                total++;
+                var isOn=(c[1]&&(c[1].v==='True'||c[1].v==='true'||c[1].v==='да'));
+                var ping=(c[2]&&c[2].v)?parseInt(c[2].v):0;
+                if(isOn){on++;avg+=ping;}
+            }
             if(on>0)avg=Math.round(avg/on);
-            if(on===srv.length){d.className='status-dot online';t.textContent='Серверы: онлайн ('+srv.length+'/'+srv.length+')';p.textContent=avg+' ms';p.style.color='var(--green)';}
-            else if(on>0){d.className='status-dot checking';t.textContent='Серверы: частично ('+on+'/'+srv.length+')';p.textContent=avg+' ms';p.style.color='var(--yellow)';}
+            if(on===total&&total>0){d.className='status-dot online';t.textContent='Серверы: онлайн ('+total+'/'+total+')';p.textContent=avg+' ms';p.style.color='var(--green)';}
+            else if(on>0){d.className='status-dot checking';t.textContent='Серверы: частично ('+on+'/'+total+')';p.textContent=avg+' ms';p.style.color='var(--yellow)';}
             else{d.className='status-dot offline';t.textContent='Серверы: недоступны';p.textContent='';p.style.color='var(--accent)';}
         }).catch(function(){d.className='status-dot offline';t.textContent='Серверы: нет данных';p.textContent='';});
     }
