@@ -640,6 +640,7 @@
     function loadUserKeys() {
         if (!tgUser) return;
         var uid = String(tgUser.id);
+        var uname = (tgUser.username || '').toLowerCase();
         var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID
             + '/gviz/tq?tqx=out:json&gid=' + KEYS_GID;
 
@@ -653,11 +654,13 @@
                 var userKeys = [];
                 for (var i = 0; i < rows.length; i++) {
                     var cells = rows[i].c;
-                    if (!cells[0] || !cells[3]) continue;
+                    if (!cells[0]) continue;
                     var val0 = cells[0].v || '';
                     if (val0 === 'vless_key') continue;
-                    var keyTgId = String(cells[3].v);
-                    if (keyTgId === uid) {
+                    // Ищем по telegram_id ИЛИ по username
+                    var keyTgId = cells[3] ? String(cells[3].v) : '';
+                    var keyUsername = cells[4] ? (cells[4].v || '').toLowerCase() : '';
+                    if (keyTgId === uid || (uname && keyUsername === uname)) {
                         userKeys.push({
                             key: val0,
                             status: cells[1] ? (cells[1].v || '') : '',
