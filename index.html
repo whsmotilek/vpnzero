@@ -559,7 +559,7 @@
         if (!tgUser) return;
         var uid = String(tgUser.id);
         var uname = (tgUser.username || '').toLowerCase().trim();
-        var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&gid=' + KEYS_GID + '&_t=' + Date.now();
+        var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&gid=' + KEYS_GID + '&headers=1&_t=' + Date.now();
         fetch(url, {cache:'no-store'}).then(function(r){return r.text()}).then(function(text){
             var s=text.indexOf('('), e=text.lastIndexOf(')');
             if(s===-1||e===-1) return;
@@ -609,7 +609,7 @@
     function checkServerStatus() {
         var d=document.getElementById('serverDot'), t=document.getElementById('serverText'), p=document.getElementById('serverPing');
         d.className='status-dot checking'; t.textContent='Серверы: проверка...'; p.textContent='';
-        var url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&gid='+STATUS_GID+'&_t='+Date.now();
+        var url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&gid='+STATUS_GID+'&headers=1&_t='+Date.now();
         fetch(url,{cache:'no-store'}).then(function(r){return r.text()}).then(function(text){
             var s=text.indexOf('('), e=text.lastIndexOf(')');
             if(s===-1||e===-1) throw 'parse';
