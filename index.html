@@ -5,192 +5,333 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>ZERO VPN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #0a0a0a;
-            --card: #141414;
-            --card-hover: #1a1a1a;
-            --accent: #00d4aa;
-            --accent-dim: rgba(0, 212, 170, 0.15);
-            --text: #e8e8e8;
-            --text-dim: #888;
-            --border: #222;
-            --radius: 16px;
+            --card: #111113;
+            --card-hover: #1a1a1e;
+            --accent: #E63946;
+            --accent-glow: rgba(230, 57, 70, 0.25);
+            --accent-dim: rgba(230, 57, 70, 0.1);
+            --accent-soft: #ff6b7a;
+            --green: #2ecc71;
+            --yellow: #f1c40f;
+            --text: #f0f0f0;
+            --text-dim: #6b6b76;
+            --border: #1e1e24;
+            --radius: 14px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Space Grotesk', -apple-system, system-ui, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
             padding: 16px;
             padding-bottom: 100px;
+            overflow-x: hidden;
         }
 
+        /* ── Animations ── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 8px var(--accent-glow); }
+            50% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(230,57,70,0.1); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-in { animation: fadeInUp 0.5s ease-out forwards; opacity: 0; }
+        .animate-in:nth-child(1) { animation-delay: 0.05s; }
+        .animate-in:nth-child(2) { animation-delay: 0.1s; }
+        .animate-in:nth-child(3) { animation-delay: 0.15s; }
+        .animate-in:nth-child(4) { animation-delay: 0.2s; }
+        .animate-in:nth-child(5) { animation-delay: 0.25s; }
+
+        /* ── Header ── */
         .header {
             text-align: center;
-            padding: 24px 0 20px;
+            padding: 20px 0 16px;
+            animation: fadeIn 0.6s ease-out;
         }
 
-        .logo {
-            width: 64px; height: 64px;
-            margin: 0 auto 12px;
-            background: linear-gradient(135deg, #00d4aa, #0088ff);
-            border-radius: 18px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -2px;
+        .logo-img {
+            width: 80px; height: 80px;
+            margin: 0 auto 14px;
+            border-radius: 20px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 20px rgba(230,57,70,0.3));
+            animation: scaleIn 0.6s ease-out;
         }
 
-        .header h1 { font-size: 22px; font-weight: 700; letter-spacing: 2px; }
+        .header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff 0%, #ccc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header .subtitle {
+            font-size: 11px; letter-spacing: 3px; color: var(--text-dim);
+            text-transform: uppercase; margin-top: 4px;
+        }
         .header .user-greeting {
-            color: var(--accent); font-size: 14px; margin-top: 6px; font-weight: 500;
+            color: var(--accent-soft); font-size: 14px; margin-top: 10px; font-weight: 500;
         }
 
+        /* ── Cards ── */
         .status-bar {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
         }
+        .status-bar:hover { border-color: #2a2a32; }
         .status-row {
             display: flex; justify-content: space-between; align-items: center;
         }
-        .status-indicator { display: flex; align-items: center; gap: 8px; }
+        .status-indicator { display: flex; align-items: center; gap: 10px; }
         .status-dot {
-            width: 10px; height: 10px; border-radius: 50%; background: #444;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #333; flex-shrink: 0;
         }
         .status-dot.active {
-            background: var(--accent); box-shadow: 0 0 8px var(--accent);
+            background: var(--accent); box-shadow: 0 0 10px var(--accent-glow);
             animation: pulse 2s infinite;
         }
-        .status-dot.online { background: #00d4aa; box-shadow: 0 0 8px #00d4aa; animation: pulse 2s infinite; }
-        .status-dot.offline { background: #ff4757; box-shadow: 0 0 8px #ff4757; }
-        .status-dot.checking { background: #ffa502; box-shadow: 0 0 8px #ffa502; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .status-label { font-size: 14px; color: var(--text-dim); }
-        .status-value { font-size: 14px; font-weight: 600; }
+        .status-dot.online { background: var(--green); box-shadow: 0 0 10px rgba(46,204,113,0.4); animation: pulse 2s infinite; }
+        .status-dot.offline { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+        .status-dot.checking { background: var(--yellow); box-shadow: 0 0 10px rgba(241,196,15,0.4); animation: pulse 1s infinite; }
+        .status-label { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+        .status-value { font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
 
         .user-id-bar {
             background: var(--card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+            border-radius: 10px; padding: 12px 16px; margin-bottom: 10px;
             display: flex; justify-content: space-between; align-items: center;
             font-size: 13px;
         }
-        .user-id-bar .label { color: var(--text-dim); }
-        .user-id-bar .value { font-family: monospace; color: var(--accent); }
+        .user-id-bar .label { color: var(--text-dim); font-weight: 500; }
+        .user-id-bar .value { font-family: 'JetBrains Mono', monospace; color: var(--accent-soft); font-size: 12px; }
 
         .section-title {
-            font-size: 13px; font-weight: 600; color: var(--text-dim);
-            text-transform: uppercase; letter-spacing: 1px;
-            margin: 24px 0 12px; padding-left: 4px;
+            font-size: 11px; font-weight: 700; color: var(--text-dim);
+            text-transform: uppercase; letter-spacing: 2px;
+            margin: 28px 0 14px; padding-left: 2px;
         }
 
-        .plans { display: flex; flex-direction: column; gap: 10px; }
+        /* ── Plans ── */
+        .plans { display: flex; flex-direction: column; gap: 8px; }
 
         .plan-card {
             background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 18px 20px; cursor: pointer;
-            transition: all 0.2s; display: flex;
-            justify-content: space-between; align-items: center;
+            border-radius: var(--radius); padding: 16px 18px; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; justify-content: space-between; align-items: center;
+            position: relative; overflow: hidden;
         }
-        .plan-card:active { background: var(--card-hover); border-color: var(--accent); }
-        .plan-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+        .plan-card::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: transparent; transition: background 0.3s;
+            border-radius: 0 2px 2px 0;
+        }
+        .plan-card:active { transform: scale(0.98); }
+        .plan-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .plan-card.selected::before { background: var(--accent); }
 
-        .plan-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
-        .plan-info span { font-size: 13px; color: var(--text-dim); }
+        .plan-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+        .plan-info span { font-size: 12px; color: var(--text-dim); }
         .plan-price { text-align: right; }
-        .plan-price .stars { font-size: 18px; font-weight: 700; color: var(--accent); }
-        .plan-price .rub { font-size: 12px; color: var(--text-dim); display: block; }
+        .plan-price .stars {
+            font-size: 18px; font-weight: 700; color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .plan-price .currency { font-size: 12px; color: var(--text-dim); font-weight: 400; }
+        .plan-price .rub { font-size: 11px; color: var(--text-dim); display: block; margin-top: 2px; }
 
         .badge {
-            background: var(--accent); color: #000; font-size: 10px; font-weight: 700;
-            padding: 2px 8px; border-radius: 100px; display: inline-block;
-            margin-left: 8px; vertical-align: middle;
+            background: var(--accent); color: #fff; font-size: 9px; font-weight: 700;
+            padding: 2px 7px; border-radius: 100px; display: inline-block;
+            margin-left: 6px; vertical-align: middle; letter-spacing: 0.5px;
         }
 
-        .features { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* ── Features ── */
+        .features { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .feature {
             background: var(--card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 16px; text-align: center;
+            border-radius: 12px; padding: 16px 12px; text-align: center;
+            transition: all 0.3s ease;
         }
-        .feature-icon { font-size: 24px; margin-bottom: 8px; }
-        .feature-text { font-size: 12px; color: var(--text-dim); line-height: 1.3; }
+        .feature:active { transform: scale(0.97); }
+        .feature-icon { font-size: 22px; margin-bottom: 8px; }
+        .feature-text {
+            font-size: 11px; color: var(--text-dim); line-height: 1.4;
+            font-weight: 500;
+        }
 
+        /* ── Button ── */
         .btn-primary {
-            width: 100%; padding: 16px;
-            background: linear-gradient(135deg, #00d4aa, #00b894);
-            color: #000; border: none; border-radius: var(--radius);
-            font-size: 16px; font-weight: 700; cursor: pointer;
-            transition: opacity 0.2s; margin-top: 24px; letter-spacing: 0.5px;
+            width: 100%; padding: 15px;
+            background: var(--accent);
+            color: #fff; border: none; border-radius: var(--radius);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px; letter-spacing: 0.5px;
+            position: relative; overflow: hidden;
         }
-        .btn-primary:active { opacity: 0.8; transform: scale(0.98); }
-        .btn-primary:disabled { opacity: 0.4; }
+        .btn-primary::after {
+            content: '';
+            position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.3; }
+        .btn-primary:disabled::after { animation: none; }
 
+        /* ── Navigation ── */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: var(--card); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; padding: 12px 0;
-            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            background: rgba(17,17,19,0.95);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; padding: 10px 0;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            z-index: 100;
         }
         .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            color: var(--text-dim); font-size: 11px; cursor: pointer;
-            background: none; border: none; transition: color 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            color: var(--text-dim); font-size: 10px; cursor: pointer;
+            background: none; border: none; transition: all 0.2s;
+            font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+            letter-spacing: 0.3px; padding: 4px 12px; border-radius: 10px;
         }
-        .nav-item.active, .nav-item:hover { color: var(--accent); }
-        .nav-icon { font-size: 20px; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 20px; transition: transform 0.2s; }
+        .nav-item.active .nav-icon { transform: scale(1.1); }
 
+        /* ── Pages ── */
         .page { display: none; }
-        .page.active { display: block; }
+        .page.active { display: block; animation: fadeIn 0.3s ease-out; }
 
+        /* ── Keys ── */
         .key-card {
             background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px;
+            border-radius: var(--radius); padding: 16px 18px; margin-bottom: 8px;
+            transition: all 0.3s ease;
         }
-        .key-status { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .key-status {
+            display: flex; justify-content: space-between; margin-bottom: 10px;
+            align-items: center;
+        }
         .key-text {
-            font-family: 'SF Mono', 'Cascadia Code', monospace; font-size: 11px;
-            word-break: break-all; background: #0d0d0d; padding: 12px;
-            border-radius: 8px; color: var(--accent); cursor: pointer; line-height: 1.5;
+            font-family: 'JetBrains Mono', monospace; font-size: 10px;
+            word-break: break-all;
+            background: rgba(230,57,70,0.06); border: 1px solid rgba(230,57,70,0.12);
+            padding: 12px; border-radius: 10px;
+            color: var(--accent-soft); cursor: pointer; line-height: 1.6;
+            transition: all 0.2s;
         }
-        .copy-hint { text-align: center; font-size: 12px; color: var(--text-dim); margin-top: 8px; }
+        .key-text:active { background: rgba(230,57,70,0.12); transform: scale(0.99); }
+        .copy-hint { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 10px; }
 
         .empty-state { text-align: center; padding: 48px 24px; color: var(--text-dim); }
-        .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
-        .empty-state p { font-size: 14px; line-height: 1.5; }
+        .empty-state .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.5; }
+        .empty-state p { font-size: 13px; line-height: 1.6; }
 
+        /* ── Instructions ── */
         .instruction-card {
             background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px;
-            cursor: pointer; transition: border-color 0.2s;
+            border-radius: var(--radius); padding: 16px 18px; margin-bottom: 8px;
+            cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 14px;
         }
-        .instruction-card:active { border-color: var(--accent); }
-        .instruction-card h3 { font-size: 15px; margin-bottom: 4px; }
-        .instruction-card p { font-size: 13px; color: var(--text-dim); }
+        .instruction-card:active { transform: scale(0.98); border-color: var(--accent); }
+        .instruction-icon { font-size: 28px; flex-shrink: 0; }
+        .instruction-card h3 { font-size: 14px; margin-bottom: 2px; font-weight: 600; }
+        .instruction-card p { font-size: 12px; color: var(--text-dim); line-height: 1.3; }
 
-        .guide-section { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 16px; margin-bottom: 8px; }
-        .guide-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
-        .guide-step { margin-bottom: 10px; line-height: 1.6; }
-        .guide-code { font-family: monospace; background: #0d0d0d; padding: 2px 8px; border-radius: 4px; color: var(--accent); font-size: 12px; }
-        .guide-link { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(0,212,170,0.3); }
-        .guide-link:active { opacity: 0.7; }
-        .guide-note { font-size: 12px; color: var(--text-dim); font-style: italic; margin-top: 8px; }
+        .guide-section {
+            font-size: 12px; font-weight: 700; color: var(--accent);
+            margin-top: 16px; margin-bottom: 8px; letter-spacing: 0.5px;
+        }
+        .guide-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+        .guide-step { margin-bottom: 10px; line-height: 1.7; font-size: 13px; }
+        .guide-code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(230,57,70,0.08); border: 1px solid rgba(230,57,70,0.15);
+            padding: 2px 8px; border-radius: 5px; color: var(--accent-soft); font-size: 11px;
+            display: inline-block; margin: 1px 0;
+        }
+        .guide-link {
+            color: var(--accent-soft); text-decoration: none;
+            border-bottom: 1px dashed rgba(230,57,70,0.4);
+            transition: all 0.2s;
+        }
+        .guide-link:active { color: var(--accent); }
+        .guide-note { font-size: 12px; color: var(--text-dim); font-style: italic; margin-top: 10px; line-height: 1.5; }
 
+        /* ── Not in Telegram ── */
         .not-in-tg {
-            text-align: center; padding: 60px 24px; color: var(--text-dim);
+            text-align: center; padding: 80px 24px; color: var(--text-dim);
+            animation: fadeIn 0.8s ease-out;
         }
-        .not-in-tg h2 { color: var(--text); margin-bottom: 12px; }
-        .not-in-tg a { color: var(--accent); text-decoration: none; }
+        .not-in-tg h2 {
+            color: var(--text); margin-bottom: 12px; font-size: 24px;
+            letter-spacing: 4px;
+        }
+        .not-in-tg a {
+            color: var(--accent); text-decoration: none; font-weight: 600;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <!-- Экран если открыли не из Telegram -->
 <div id="not-in-tg" class="not-in-tg" style="display:none;">
-    <div class="logo" style="margin: 0 auto 20px;">Z</div>
+    <img src="avatar.png" alt="ZERO VPN" style="width:80px;height:80px;margin:0 auto 20px;display:block;border-radius:18px;filter:drop-shadow(0 4px 20px rgba(230,57,70,0.3));">
     <h2>ZERO VPN</h2>
-    <p>Откройте это приложение<br>через Telegram-бот:</p>
-    <p style="margin-top: 16px;"><a href="https://t.me/zero_vpn_bot">@zero_vpn_bot</a></p>
+    <p style="margin-bottom: 20px;">Откройте это приложение<br>через Telegram-бот:</p>
+    <p><a href="https://t.me/zero_vpn_bot">@zero_vpn_bot</a></p>
 </div>
 
 <!-- Основное приложение -->
@@ -199,17 +340,18 @@
 <!-- Главная -->
 <div id="page-home" class="page active">
     <div class="header">
-        <div class="logo">Z</div>
+        <img src="avatar.png" alt="ZERO VPN" class="logo-img">
         <h1>ZERO VPN</h1>
+        <div class="subtitle">private & secure</div>
         <div class="user-greeting" id="userGreeting"></div>
     </div>
 
-    <div class="user-id-bar">
+    <div class="user-id-bar animate-in">
         <span class="label">Telegram ID</span>
-        <span class="value" id="userId">—</span>
+        <span class="value" id="userId">&mdash;</span>
     </div>
 
-    <div class="status-bar">
+    <div class="status-bar animate-in">
         <div class="status-row">
             <div class="status-indicator">
                 <div class="status-dot" id="statusDot"></div>
@@ -219,7 +361,7 @@
         </div>
     </div>
 
-    <div class="status-bar">
+    <div class="status-bar animate-in">
         <div class="status-row">
             <div class="status-indicator">
                 <div class="status-dot checking" id="serverDot"></div>
@@ -229,57 +371,57 @@
         </div>
     </div>
 
-    <div class="section-title">Тарифы</div>
+    <div class="section-title animate-in">Тарифы</div>
     <div class="plans">
-        <div class="plan-card" data-plan="1month" onclick="selectPlan(this)">
+        <div class="plan-card animate-in" data-plan="1month" onclick="selectPlan(this)">
             <div class="plan-info">
                 <h3>1 месяц</h3>
                 <span>Безлимитный трафик</span>
             </div>
             <div class="plan-price">
-                <span class="stars">167</span>
+                <span class="stars">167 <span class="currency">Stars</span></span>
                 <span class="rub">~300 руб.</span>
             </div>
         </div>
-        <div class="plan-card" data-plan="3months" onclick="selectPlan(this)">
+        <div class="plan-card animate-in" data-plan="3months" onclick="selectPlan(this)">
             <div class="plan-info">
                 <h3>3 месяца <span class="badge">-17%</span></h3>
                 <span>Безлимитный трафик</span>
             </div>
             <div class="plan-price">
-                <span class="stars">417</span>
+                <span class="stars">417 <span class="currency">Stars</span></span>
                 <span class="rub">~750 руб.</span>
             </div>
         </div>
-        <div class="plan-card" data-plan="1year" onclick="selectPlan(this)">
+        <div class="plan-card animate-in" data-plan="1year" onclick="selectPlan(this)">
             <div class="plan-info">
                 <h3>1 год <span class="badge">-45%</span></h3>
                 <span>Безлимитный трафик</span>
             </div>
             <div class="plan-price">
-                <span class="stars">1667</span>
+                <span class="stars">1667 <span class="currency">Stars</span></span>
                 <span class="rub">~3000 руб.</span>
             </div>
         </div>
     </div>
 
-    <button class="btn-primary" id="buyBtn" onclick="buyPlan()">Выберите тариф</button>
+    <button class="btn-primary" id="buyBtn" onclick="buyPlan()" disabled>Выберите тариф</button>
 
     <div class="section-title">Преимущества</div>
     <div class="features">
-        <div class="feature">
+        <div class="feature animate-in">
             <div class="feature-icon">&#128274;</div>
             <div class="feature-text">Протокол VLESS<br>невидим для DPI</div>
         </div>
-        <div class="feature">
+        <div class="feature animate-in">
             <div class="feature-icon">&#9889;</div>
             <div class="feature-text">Высокая<br>скорость</div>
         </div>
-        <div class="feature">
+        <div class="feature animate-in">
             <div class="feature-icon">&#127758;</div>
             <div class="feature-text">Обход<br>блокировок</div>
         </div>
-        <div class="feature">
+        <div class="feature animate-in">
             <div class="feature-icon">&#128241;</div>
             <div class="feature-text">Все<br>платформы</div>
         </div>
@@ -301,25 +443,25 @@
 <!-- Инструкция -->
 <div id="page-guide" class="page">
     <div class="section-title" style="margin-top: 16px">Подключение</div>
-    <div class="instruction-card" onclick="showGuide('ios')">
-        <h3>iOS</h3>
-        <p>Streisand / V2Box  (нужна смена региона App Store)</p>
+    <div class="instruction-card animate-in" onclick="showGuide('ios')">
+        <div class="instruction-icon">&#63743;</div>
+        <div><h3>iOS</h3><p>Streisand / V2Box (смена региона)</p></div>
     </div>
-    <div class="instruction-card" onclick="showGuide('android')">
-        <h3>Android</h3>
-        <p>V2rayNG из Google Play или APK</p>
+    <div class="instruction-card animate-in" onclick="showGuide('android')">
+        <div class="instruction-icon">&#129302;</div>
+        <div><h3>Android</h3><p>V2rayNG из Google Play или APK</p></div>
     </div>
-    <div class="instruction-card" onclick="showGuide('windows')">
-        <h3>Windows</h3>
-        <p>Hiddify / Nekoray</p>
+    <div class="instruction-card animate-in" onclick="showGuide('windows')">
+        <div class="instruction-icon">&#128187;</div>
+        <div><h3>Windows</h3><p>Hiddify / Nekoray</p></div>
     </div>
-    <div class="instruction-card" onclick="showGuide('macos')">
-        <h3>macOS</h3>
-        <p>Hiddify / V2Box</p>
+    <div class="instruction-card animate-in" onclick="showGuide('macos')">
+        <div class="instruction-icon">&#128421;</div>
+        <div><h3>macOS</h3><p>Hiddify / V2Box</p></div>
     </div>
-    <div id="guideContent" style="display:none; margin-top: 16px;">
+    <div id="guideContent" style="display:none; margin-top: 12px;">
         <div class="key-card">
-            <div id="guideText" style="font-size: 14px; line-height: 1.8;"></div>
+            <div id="guideText" style="font-size: 13px; line-height: 1.8;"></div>
         </div>
     </div>
 </div>
@@ -348,7 +490,6 @@
     let tgUser = null;
 
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        // Открыто из Telegram — есть данные пользователя
         tg.ready();
         tg.expand();
         try { tg.setHeaderColor('#0a0a0a'); } catch(e) {}
@@ -359,7 +500,6 @@
         document.getElementById('app').style.display = 'block';
         document.getElementById('bottomNav').style.display = 'flex';
 
-        // Заполняем данные пользователя
         const firstName = tgUser.first_name || '';
         const lastName = tgUser.last_name || '';
         document.getElementById('userGreeting').textContent =
@@ -367,7 +507,6 @@
         document.getElementById('userId').textContent = tgUser.id;
 
     } else {
-        // Открыто в обычном браузере — нет данных Telegram
         document.getElementById('not-in-tg').style.display = 'block';
     }
 
@@ -379,6 +518,7 @@
         document.getElementById('page-' + name).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
         if (navEl) navEl.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ── Тарифы ──
@@ -402,7 +542,6 @@
             alert('Оплата доступна только через Telegram');
             return;
         }
-        // Отправляем данные в бот
         tg.sendData(JSON.stringify({
             action: 'buy',
             plan: selectedPlan,
@@ -416,8 +555,8 @@
             + '<hr class="guide-divider">'
             + '<p class="guide-note">Приложения Streisand и V2Box недоступны в российском App Store. Сначала нужно сменить регион на США.</p>'
             + '<div class="guide-section">Часть 1 — Смена региона App Store</div>'
-            + '<div class="guide-step"><b>1.</b> Откройте <b>Настройки</b> → ваше имя → <b>Медиаматериалы и покупки</b></div>'
-            + '<div class="guide-step"><b>2.</b> Нажмите <b>Просмотреть</b> → <b>Страна/регион</b></div>'
+            + '<div class="guide-step"><b>1.</b> Откройте <b>Настройки</b> &rarr; ваше имя &rarr; <b>Медиаматериалы и покупки</b></div>'
+            + '<div class="guide-step"><b>2.</b> Нажмите <b>Просмотреть</b> &rarr; <b>Страна/регион</b></div>'
             + '<div class="guide-step"><b>3.</b> Выберите <b>United States</b></div>'
             + '<div class="guide-step"><b>4.</b> Примите условия соглашения</div>'
             + '<div class="guide-step"><b>5.</b> Способ оплаты: <b>None</b></div>'
@@ -434,7 +573,7 @@
             + '<a class="guide-link" href="https://apps.apple.com/app/streisand/id6450534064" target="_blank">Streisand (App Store)</a> или '
             + '<a class="guide-link" href="https://apps.apple.com/app/v2box-v2ray-client/id6446814690" target="_blank">V2Box (App Store)</a></div>'
             + '<div class="guide-step"><b>2.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
-            + '<div class="guide-step"><b>3.</b> В приложении: <b>+</b> → <b>Импорт из буфера обмена</b></div>'
+            + '<div class="guide-step"><b>3.</b> В приложении: <b>+</b> &rarr; <b>Импорт из буфера обмена</b></div>'
             + '<div class="guide-step"><b>4.</b> Нажмите на профиль для подключения</div>'
             + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>'
             + '<p class="guide-note">После установки можно вернуть регион App Store обратно на Россию.</p>',
@@ -451,8 +590,8 @@
             + '<div class="guide-step"><b>3.</b> Установите приложение</div>'
             + '<div class="guide-section">Подключение</div>'
             + '<div class="guide-step"><b>1.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
-            + '<div class="guide-step"><b>2.</b> В V2rayNG: <b>+</b> → <b>Импорт из буфера обмена</b></div>'
-            + '<div class="guide-step"><b>3.</b> Нажмите <b>▶ Play</b></div>'
+            + '<div class="guide-step"><b>2.</b> В V2rayNG: <b>+</b> &rarr; <b>Импорт из буфера обмена</b></div>'
+            + '<div class="guide-step"><b>3.</b> Нажмите <b>&#9654; Play</b></div>'
             + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>',
 
         windows: '<b>Подключение на Windows</b>'
@@ -464,7 +603,7 @@
             + '<div class="guide-step"><b>2.</b> Установите и откройте</div>'
             + '<div class="guide-section">Подключение</div>'
             + '<div class="guide-step"><b>3.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
-            + '<div class="guide-step"><b>4.</b> В программе: <b>Добавить</b> → <b>Из буфера обмена</b></div>'
+            + '<div class="guide-step"><b>4.</b> В программе: <b>Добавить</b> &rarr; <b>Из буфера обмена</b></div>'
             + '<div class="guide-step"><b>5.</b> Включите подключение</div>'
             + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>',
 
@@ -481,7 +620,7 @@
             + '<a class="guide-link" href="https://github.com/hiddify/hiddify-app/releases" target="_blank">Hiddify (GitHub)</a></div>'
             + '<div class="guide-section">Подключение</div>'
             + '<div class="guide-step"><b>1.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
-            + '<div class="guide-step"><b>2.</b> В приложении: <b>+</b> → <b>Импорт из буфера обмена</b></div>'
+            + '<div class="guide-step"><b>2.</b> В приложении: <b>+</b> &rarr; <b>Импорт из буфера обмена</b></div>'
             + '<div class="guide-step"><b>3.</b> Включите подключение</div>'
             + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>'
     };
@@ -490,6 +629,7 @@
         var el = document.getElementById('guideContent');
         document.getElementById('guideText').innerHTML = guides[platform];
         el.style.display = 'block';
+        el.style.animation = 'fadeInUp 0.3s ease-out';
         el.scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -506,18 +646,15 @@
         fetch(url)
             .then(function(r) { return r.text(); })
             .then(function(text) {
-                // Google returns JSONP wrapper: /*O_o*/ google.visualization.Query.setResponse({...});
                 var start = text.indexOf('(');
                 var end = text.lastIndexOf(')');
                 var json = JSON.parse(text.substring(start + 1, end));
                 var rows = json.table.rows;
                 var userKeys = [];
-                // Пропускаем строку заголовков (parsedNumHeaders=0, первая строка — заголовки)
                 for (var i = 0; i < rows.length; i++) {
                     var cells = rows[i].c;
                     if (!cells[0] || !cells[3]) continue;
                     var val0 = cells[0].v || '';
-                    // Пропускаем заголовок
                     if (val0 === 'vless_key') continue;
                     var keyTgId = String(cells[3].v);
                     if (keyTgId === uid) {
@@ -553,12 +690,11 @@
             var isPermanent = k.expires.indexOf('9999') !== -1;
             var statusText = isPermanent ? 'Бессрочный' : (k.status || 'Активен');
             var expiresText = isPermanent ? '\u221E' : (k.expires ? k.expires.substring(0, 10) : '\u2014');
-            var planText = isPermanent ? 'permanent' : (k.plan || '\u2014');
 
-            html += '<div class="key-card">'
+            html += '<div class="key-card animate-in">'
                 + '<div class="key-status">'
-                + '<span style="color:var(--accent);font-weight:600;">' + statusText + '</span>'
-                + '<span style="color:var(--text-dim);font-size:13px;">'
+                + '<span style="color:var(--accent);font-weight:600;font-size:13px;">' + statusText + '</span>'
+                + '<span style="color:var(--text-dim);font-size:12px;font-family:JetBrains Mono,monospace;">'
                 + (isPermanent ? '' : 'до ') + expiresText + '</span>'
                 + '</div>'
                 + '<div class="key-text">' + k.key + '</div>'
@@ -578,6 +714,7 @@
             var isPermanent = keys[0].expires.indexOf('9999') !== -1;
             text.textContent = 'VPN активен';
             expiry.textContent = isPermanent ? 'Бессрочный' : ('до ' + keys[0].expires.substring(0, 10));
+            expiry.style.color = 'var(--accent)';
         } else {
             dot.classList.remove('active');
             text.textContent = 'Нет подписки';
@@ -600,7 +737,7 @@
             dot.className = 'status-dot offline';
             text.textContent = 'Сервер: недоступен';
             ping.textContent = '';
-            ping.style.color = '#ff4757';
+            ping.style.color = 'var(--accent)';
         }, 5000);
 
         fetch('https://sexy-devil.ru', { mode: 'no-cors', cache: 'no-store' })
@@ -610,28 +747,29 @@
                 dot.className = 'status-dot online';
                 text.textContent = 'Сервер: онлайн';
                 ping.textContent = ms + ' ms';
-                ping.style.color = 'var(--accent)';
+                ping.style.color = 'var(--green)';
             })
             .catch(function() {
                 clearTimeout(timeout);
                 dot.className = 'status-dot offline';
                 text.textContent = 'Сервер: недоступен';
                 ping.textContent = '';
-                ping.style.color = '#ff4757';
+                ping.style.color = 'var(--accent)';
             });
     }
 
-    // Проверяем сразу и каждые 30 секунд
     checkServerStatus();
     setInterval(checkServerStatus, 30000);
 
-    // Загружаем ключи при старте
     if (tgUser) loadUserKeys();
 
     // ── Копирование ключа ──
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('key-text')) {
-            navigator.clipboard.writeText(e.target.textContent).then(function() {
+            var el = e.target;
+            navigator.clipboard.writeText(el.textContent).then(function() {
+                el.style.borderColor = 'var(--accent)';
+                setTimeout(function() { el.style.borderColor = ''; }, 600);
                 if (tg) tg.showAlert('Ключ скопирован!');
                 else alert('Скопировано!');
             });
