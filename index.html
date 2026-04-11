@@ -640,32 +640,36 @@
     function loadUserKeys() {
         if (!tgUser) return;
         var uid = String(tgUser.id);
-        var uname = (tgUser.username || '').toLowerCase();
+        var uname = (tgUser.username || '').toLowerCase().trim();
         var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID
-            + '/gviz/tq?tqx=out:json&gid=' + KEYS_GID;
+            + '/gviz/tq?tqx=out:json&gid=' + KEYS_GID + '&_t=' + Date.now();
 
-        fetch(url)
+        fetch(url, { cache: 'no-store' })
             .then(function(r) { return r.text(); })
             .then(function(text) {
                 var start = text.indexOf('(');
                 var end = text.lastIndexOf(')');
+                if (start === -1 || end === -1) return;
                 var json = JSON.parse(text.substring(start + 1, end));
-                var rows = json.table.rows;
+                var rows = json.table.rows || [];
                 var userKeys = [];
                 for (var i = 0; i < rows.length; i++) {
                     var cells = rows[i].c;
-                    if (!cells[0]) continue;
-                    var val0 = cells[0].v || '';
+                    if (!cells || !cells[0] || !cells[0].v) continue;
+                    var val0 = String(cells[0].v);
                     if (val0 === 'vless_key') continue;
-                    // Ищем по telegram_id ИЛИ по username
-                    var keyTgId = cells[3] ? String(cells[3].v) : '';
-                    var keyUsername = cells[4] ? (cells[4].v || '').toLowerCase() : '';
-                    if (keyTgId === uid || (uname && keyUsername === uname)) {
+                    // Колонка D (index 3) = telegram_id, колонка E (index 4) = username
+                    var keyTgId = (cells[3] && cells[3].v !== null) ? String(cells[3].v).trim() : '';
+                    var keyUsername = (cells[4] && cells[4].v !== null) ? String(cells[4].v).toLowerCase().trim() : '';
+                    var match = false;
+                    if (keyTgId === uid) match = true;
+                    if (uname.length > 0 && keyUsername === uname) match = true;
+                    if (match) {
                         userKeys.push({
                             key: val0,
-                            status: cells[1] ? (cells[1].v || '') : '',
-                            plan: cells[2] ? (cells[2].v || '') : '',
-                            expires: cells[6] ? (cells[6].v || '') : '',
+                            status: (cells[1] && cells[1].v) ? String(cells[1].v) : '',
+                            plan: (cells[2] && cells[2].v) ? String(cells[2].v) : '',
+                            expires: (cells[6] && cells[6].v) ? String(cells[6].v) : '',
                         });
                     }
                 }
