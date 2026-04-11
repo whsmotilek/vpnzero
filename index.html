@@ -495,30 +495,37 @@
 
     // ── Загрузка ключей из Google Sheets ──
     var SHEET_ID = '1Sb0TKTA020ywaaYwxoQzYRQh_P22vzIhggzM6qvrJuk';
+    var KEYS_GID = '276659725';
 
     function loadUserKeys() {
         if (!tgUser) return;
         var uid = String(tgUser.id);
         var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID
-            + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent('Ключи');
+            + '/gviz/tq?tqx=out:json&gid=' + KEYS_GID;
 
         fetch(url)
             .then(function(r) { return r.text(); })
             .then(function(text) {
-                // Google returns JSONP-like response
-                var json = JSON.parse(text.substr(47).slice(0, -2));
+                // Google returns JSONP wrapper: /*O_o*/ google.visualization.Query.setResponse({...});
+                var start = text.indexOf('(');
+                var end = text.lastIndexOf(')');
+                var json = JSON.parse(text.substring(start + 1, end));
                 var rows = json.table.rows;
                 var userKeys = [];
+                // Пропускаем строку заголовков (parsedNumHeaders=0, первая строка — заголовки)
                 for (var i = 0; i < rows.length; i++) {
                     var cells = rows[i].c;
                     if (!cells[0] || !cells[3]) continue;
+                    var val0 = cells[0].v || '';
+                    // Пропускаем заголовок
+                    if (val0 === 'vless_key') continue;
                     var keyTgId = String(cells[3].v);
                     if (keyTgId === uid) {
                         userKeys.push({
-                            key: cells[0].v || '',
-                            status: cells[1] ? cells[1].v : '',
-                            plan: cells[2] ? cells[2].v : '',
-                            expires: cells[6] ? cells[6].v : '',
+                            key: val0,
+                            status: cells[1] ? (cells[1].v || '') : '',
+                            plan: cells[2] ? (cells[2].v || '') : '',
+                            expires: cells[6] ? (cells[6].v || '') : '',
                         });
                     }
                 }
