@@ -27,7 +27,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Press Start 2P', 'Space Grotesk', -apple-system, system-ui, sans-serif;
+            font-family: 'Space Grotesk', -apple-system, system-ui, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
@@ -100,9 +100,8 @@
             -webkit-text-fill-color: transparent;
         }
         .header .subtitle {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 5px; letter-spacing: 2px; color: var(--text-dim);
-            text-transform: uppercase; margin-top: 8px;
+            font-size: 11px; letter-spacing: 3px; color: var(--text-dim);
+            text-transform: uppercase; margin-top: 4px;
         }
         .header .user-greeting {
             color: var(--accent-soft); font-size: 14px; margin-top: 10px; font-weight: 500;
@@ -147,8 +146,8 @@
 
         .section-title {
             font-family: 'Press Start 2P', cursive;
-            font-size: 6px; font-weight: 400; color: var(--text-dim);
-            text-transform: uppercase; letter-spacing: 1px;
+            font-size: 11px; font-weight: 700; color: var(--text-dim);
+            text-transform: uppercase; letter-spacing: 2px;
             margin: 28px 0 14px; padding-left: 2px;
         }
 
@@ -174,22 +173,21 @@
         }
         .plan-card.selected::before { background: var(--accent); }
 
-        .plan-info h3 { font-family: 'Press Start 2P', cursive; font-size: 8px; font-weight: 400; margin-bottom: 4px; line-height: 1.6; }
+        .plan-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
         .plan-info span { font-size: 12px; color: var(--text-dim); }
         .plan-price { text-align: right; }
         .plan-price .stars {
-            font-size: 9px; font-weight: 400; color: var(--accent);
-            font-family: 'Press Start 2P', cursive;
+            font-size: 18px; font-weight: 700; color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
         }
         .plan-price .currency { font-size: 12px; color: var(--text-dim); font-weight: 400; }
         .plan-price .rub { font-size: 11px; color: var(--text-dim); display: block; margin-top: 2px; }
 
         .badge {
-            background: var(--accent); color: #fff; font-size: 8px; font-weight: 700;
-            padding: 3px 8px; border-radius: 100px; display: inline-block;
-            margin-left: 6px; vertical-align: middle; letter-spacing: 0.5px;
+            background: var(--accent); color: #ffffff; font-size: 11px; font-weight: 700;
+            padding: 3px 9px; border-radius: 100px; display: inline-block;
+            margin-left: 6px; vertical-align: middle; letter-spacing: 0.3px;
             font-family: 'Space Grotesk', sans-serif;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         /* ── Features ── */
@@ -211,8 +209,8 @@
             width: 100%; padding: 15px;
             background: var(--accent);
             color: #fff; border: none; border-radius: var(--radius);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 8px; font-weight: 400; cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px; font-weight: 700; cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 20px; letter-spacing: 0.5px;
             position: relative; overflow: hidden;
@@ -239,10 +237,10 @@
         }
         .nav-item {
             display: flex; flex-direction: column; align-items: center; gap: 3px;
-            color: var(--text-dim); font-size: 6px; cursor: pointer;
+            color: var(--text-dim); font-size: 10px; cursor: pointer;
             background: none; border: none; transition: all 0.2s;
-            font-family: 'Press Start 2P', cursive; font-weight: 400;
-            letter-spacing: 0px; padding: 4px 12px; border-radius: 10px;
+            font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+            letter-spacing: 0.3px; padding: 4px 12px; border-radius: 10px;
         }
         .nav-item.active { color: var(--accent); }
         .nav-icon { font-size: 20px; transition: transform 0.2s; }
