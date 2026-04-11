@@ -429,6 +429,94 @@
         el.scrollIntoView({ behavior: 'smooth' });
     }
 
+    // ── Загрузка ключей из Google Sheets ──
+    var SHEET_ID = '1Sb0TKTA020ywaaYwxoQzYRQh_P22vzIhggzM6qvrJuk';
+
+    function loadUserKeys() {
+        if (!tgUser) return;
+        var uid = String(tgUser.id);
+        var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID
+            + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent('Ключи');
+
+        fetch(url)
+            .then(function(r) { return r.text(); })
+            .then(function(text) {
+                // Google returns JSONP-like response
+                var json = JSON.parse(text.substr(47).slice(0, -2));
+                var rows = json.table.rows;
+                var userKeys = [];
+                for (var i = 0; i < rows.length; i++) {
+                    var cells = rows[i].c;
+                    if (!cells[0] || !cells[3]) continue;
+                    var keyTgId = String(cells[3].v);
+                    if (keyTgId === uid) {
+                        userKeys.push({
+                            key: cells[0].v || '',
+                            status: cells[1] ? cells[1].v : '',
+                            plan: cells[2] ? cells[2].v : '',
+                            expires: cells[6] ? cells[6].v : '',
+                        });
+                    }
+                }
+                renderKeys(userKeys);
+                updateStatus(userKeys);
+            })
+            .catch(function(e) {
+                console.log('Sheets fetch error:', e);
+            });
+    }
+
+    function renderKeys(keys) {
+        var container = document.getElementById('keysList');
+        var hint = document.getElementById('copyHint');
+        if (!keys.length) {
+            container.innerHTML = '<div class="empty-state">'
+                + '<div class="empty-icon">&#128273;</div>'
+                + '<p>У вас пока нет ключей.<br>Оформите подписку на главной.</p></div>';
+            hint.style.display = 'none';
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < keys.length; i++) {
+            var k = keys[i];
+            var isPermanent = k.expires.indexOf('9999') !== -1;
+            var statusText = isPermanent ? 'Бессрочный' : (k.status || 'Активен');
+            var expiresText = isPermanent ? '\u221E' : (k.expires ? k.expires.substring(0, 10) : '\u2014');
+            var planText = isPermanent ? 'permanent' : (k.plan || '\u2014');
+
+            html += '<div class="key-card">'
+                + '<div class="key-status">'
+                + '<span style="color:var(--accent);font-weight:600;">' + statusText + '</span>'
+                + '<span style="color:var(--text-dim);font-size:13px;">'
+                + (isPermanent ? '' : 'до ') + expiresText + '</span>'
+                + '</div>'
+                + '<div class="key-text">' + k.key + '</div>'
+                + '</div>';
+        }
+        container.innerHTML = html;
+        hint.style.display = 'block';
+    }
+
+    function updateStatus(keys) {
+        var dot = document.getElementById('statusDot');
+        var text = document.getElementById('statusText');
+        var expiry = document.getElementById('statusExpiry');
+
+        if (keys.length > 0) {
+            dot.classList.add('active');
+            var isPermanent = keys[0].expires.indexOf('9999') !== -1;
+            text.textContent = 'VPN активен';
+            expiry.textContent = isPermanent ? 'Бессрочный' : ('до ' + keys[0].expires.substring(0, 10));
+        } else {
+            dot.classList.remove('active');
+            text.textContent = 'Нет подписки';
+            expiry.textContent = '';
+        }
+    }
+
+    // Загружаем ключи при старте
+    if (tgUser) loadUserKeys();
+
     // ── Копирование ключа ──
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('key-text')) {
