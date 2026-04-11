@@ -168,6 +168,14 @@
         .instruction-card h3 { font-size: 15px; margin-bottom: 4px; }
         .instruction-card p { font-size: 13px; color: var(--text-dim); }
 
+        .guide-section { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 16px; margin-bottom: 8px; }
+        .guide-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+        .guide-step { margin-bottom: 10px; line-height: 1.6; }
+        .guide-code { font-family: monospace; background: #0d0d0d; padding: 2px 8px; border-radius: 4px; color: var(--accent); font-size: 12px; }
+        .guide-link { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(0,212,170,0.3); }
+        .guide-link:active { opacity: 0.7; }
+        .guide-note { font-size: 12px; color: var(--text-dim); font-style: italic; margin-top: 8px; }
+
         .not-in-tg {
             text-align: center; padding: 60px 24px; color: var(--text-dim);
         }
@@ -404,35 +412,78 @@
 
     // ── Инструкции ──
     var guides = {
-        ios: '<b>iOS</b><br><br>'
-            + '1. Смените регион App Store на США:<br>'
-            + '   Настройки > Apple ID > Медиа > Страна<br>'
-            + '   > United States > None<br>'
-            + '   Адрес: 401 N Maple Dr, Beverly Hills, CA 90210<br><br>'
-            + '2. Скачайте <b>Streisand</b> или <b>V2Box</b><br><br>'
-            + '3. Скопируйте VLESS-ключ (раздел Ключи)<br><br>'
-            + '4. В приложении: + > Импорт из буфера<br><br>'
-            + '5. Нажмите на профиль для подключения<br><br>'
-            + 'После установки можно вернуть регион на Россию.',
-        android: '<b>Android</b><br><br>'
-            + '1. Скачайте <b>V2rayNG</b> из Google Play<br>'
-            + '   или APK: github.com/2dust/v2rayNG/releases<br><br>'
-            + '2. Скопируйте VLESS-ключ (раздел Ключи)<br><br>'
-            + '3. В приложении: + > Импорт из буфера<br><br>'
-            + '4. Нажмите Play',
-        windows: '<b>Windows</b><br><br>'
-            + '1. Скачайте <b>Hiddify</b>:<br>'
-            + '   github.com/hiddify/hiddify-app/releases<br><br>'
-            + '2. Скопируйте VLESS-ключ (раздел Ключи)<br><br>'
-            + '3. Добавить > Из буфера обмена<br><br>'
-            + '4. Включите подключение',
-        macos: '<b>macOS</b><br><br>'
-            + '1. Скачайте <b>Hiddify</b>:<br>'
-            + '   github.com/hiddify/hiddify-app/releases<br>'
-            + '   или V2Box из App Store (регион США)<br><br>'
-            + '2. Скопируйте VLESS-ключ (раздел Ключи)<br><br>'
-            + '3. В приложении: + > Импорт из буфера<br><br>'
-            + '4. Включите подключение'
+        ios: '<b>Подключение на iOS</b>'
+            + '<hr class="guide-divider">'
+            + '<p class="guide-note">Приложения Streisand и V2Box недоступны в российском App Store. Сначала нужно сменить регион на США.</p>'
+            + '<div class="guide-section">Часть 1 — Смена региона App Store</div>'
+            + '<div class="guide-step"><b>1.</b> Откройте <b>Настройки</b> → ваше имя → <b>Медиаматериалы и покупки</b></div>'
+            + '<div class="guide-step"><b>2.</b> Нажмите <b>Просмотреть</b> → <b>Страна/регион</b></div>'
+            + '<div class="guide-step"><b>3.</b> Выберите <b>United States</b></div>'
+            + '<div class="guide-step"><b>4.</b> Примите условия соглашения</div>'
+            + '<div class="guide-step"><b>5.</b> Способ оплаты: <b>None</b></div>'
+            + '<div class="guide-step"><b>6.</b> Заполните адрес:<br>'
+            + '<span class="guide-code">Name: John Smith</span><br>'
+            + '<span class="guide-code">Street: 401 N Maple Dr</span><br>'
+            + '<span class="guide-code">City: Beverly Hills</span><br>'
+            + '<span class="guide-code">State: California</span><br>'
+            + '<span class="guide-code">ZIP: 90210</span><br>'
+            + '<span class="guide-code">Phone: +1 310 5550199</span></div>'
+            + '<div class="guide-step"><b>7.</b> Нажмите <b>Done</b> — готово!</div>'
+            + '<div class="guide-section">Часть 2 — Установка и подключение</div>'
+            + '<div class="guide-step"><b>1.</b> В App Store найдите и установите:<br>'
+            + '<a class="guide-link" href="https://apps.apple.com/app/streisand/id6450534064" target="_blank">Streisand (App Store)</a> или '
+            + '<a class="guide-link" href="https://apps.apple.com/app/v2box-v2ray-client/id6446814690" target="_blank">V2Box (App Store)</a></div>'
+            + '<div class="guide-step"><b>2.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
+            + '<div class="guide-step"><b>3.</b> В приложении: <b>+</b> → <b>Импорт из буфера обмена</b></div>'
+            + '<div class="guide-step"><b>4.</b> Нажмите на профиль для подключения</div>'
+            + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>'
+            + '<p class="guide-note">После установки можно вернуть регион App Store обратно на Россию.</p>',
+
+        android: '<b>Подключение на Android</b>'
+            + '<hr class="guide-divider">'
+            + '<div class="guide-section">Вариант 1 — Google Play</div>'
+            + '<div class="guide-step"><b>1.</b> Установите <b>V2rayNG</b>:<br>'
+            + '<a class="guide-link" href="https://play.google.com/store/apps/details?id=com.v2ray.ang" target="_blank">V2rayNG (Google Play)</a></div>'
+            + '<div class="guide-section">Вариант 2 — APK (если нет в Play)</div>'
+            + '<div class="guide-step"><b>1.</b> Скачайте последний APK:<br>'
+            + '<a class="guide-link" href="https://github.com/2dust/v2rayNG/releases" target="_blank">github.com/2dust/v2rayNG/releases</a></div>'
+            + '<div class="guide-step"><b>2.</b> Разрешите установку из неизвестных источников</div>'
+            + '<div class="guide-step"><b>3.</b> Установите приложение</div>'
+            + '<div class="guide-section">Подключение</div>'
+            + '<div class="guide-step"><b>1.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
+            + '<div class="guide-step"><b>2.</b> В V2rayNG: <b>+</b> → <b>Импорт из буфера обмена</b></div>'
+            + '<div class="guide-step"><b>3.</b> Нажмите <b>▶ Play</b></div>'
+            + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>',
+
+        windows: '<b>Подключение на Windows</b>'
+            + '<hr class="guide-divider">'
+            + '<div class="guide-section">Установка</div>'
+            + '<div class="guide-step"><b>1.</b> Скачайте одну из программ:<br>'
+            + '<a class="guide-link" href="https://github.com/hiddify/hiddify-app/releases" target="_blank">Hiddify (GitHub)</a><br>'
+            + '<a class="guide-link" href="https://github.com/MatsuriDayo/nekoray/releases" target="_blank">Nekoray (GitHub)</a></div>'
+            + '<div class="guide-step"><b>2.</b> Установите и откройте</div>'
+            + '<div class="guide-section">Подключение</div>'
+            + '<div class="guide-step"><b>3.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
+            + '<div class="guide-step"><b>4.</b> В программе: <b>Добавить</b> → <b>Из буфера обмена</b></div>'
+            + '<div class="guide-step"><b>5.</b> Включите подключение</div>'
+            + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>',
+
+        macos: '<b>Подключение на macOS</b>'
+            + '<hr class="guide-divider">'
+            + '<p class="guide-note">Приложения V2Box и Hiddify могут быть недоступны в российском App Store. Смените регион на США (см. инструкцию для iOS) или скачайте напрямую.</p>'
+            + '<div class="guide-section">Вариант 1 — App Store (регион США)</div>'
+            + '<div class="guide-step"><b>1.</b> Смените регион на США (инструкция в разделе iOS)</div>'
+            + '<div class="guide-step"><b>2.</b> Скачайте из App Store:<br>'
+            + '<a class="guide-link" href="https://apps.apple.com/app/v2box-v2ray-client/id6446814690" target="_blank">V2Box (App Store)</a> или '
+            + '<a class="guide-link" href="https://apps.apple.com/app/streisand/id6450534064" target="_blank">Streisand (App Store)</a></div>'
+            + '<div class="guide-section">Вариант 2 — Скачать напрямую</div>'
+            + '<div class="guide-step"><b>1.</b> Скачайте <b>Hiddify</b>:<br>'
+            + '<a class="guide-link" href="https://github.com/hiddify/hiddify-app/releases" target="_blank">Hiddify (GitHub)</a></div>'
+            + '<div class="guide-section">Подключение</div>'
+            + '<div class="guide-step"><b>1.</b> Скопируйте ваш VLESS-ключ (раздел <b>Ключи</b>)</div>'
+            + '<div class="guide-step"><b>2.</b> В приложении: <b>+</b> → <b>Импорт из буфера обмена</b></div>'
+            + '<div class="guide-step"><b>3.</b> Включите подключение</div>'
+            + '<div class="guide-step" style="color:var(--accent);">Готово! VPN активен.</div>'
     };
 
     function showGuide(platform) {
