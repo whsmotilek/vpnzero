@@ -590,15 +590,38 @@
     }
     function renderKeys(keys) {
         var el=document.getElementById('keysList'), hint=document.getElementById('copyHint');
-        if(!keys.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">&#128273;</div><p>У вас пока нет ключей.<br>Оформите подписку на главной.</p></div>';hint.style.display='none';return;}
-        var h='';
+        // Очищаем через textContent — безопасно
+        while (el.firstChild) el.removeChild(el.firstChild);
+        if(!keys.length){
+            var empty=document.createElement('div'); empty.className='empty-state';
+            var icon=document.createElement('div'); icon.className='empty-icon'; icon.textContent='🔑';
+            var p=document.createElement('p'); p.innerHTML='У вас пока нет ключей.<br>Оформите подписку на главной.';
+            empty.appendChild(icon); empty.appendChild(p); el.appendChild(empty);
+            hint.style.display='none'; return;
+        }
         for(var i=0;i<keys.length;i++){
             var k=keys[i], perm=k.expires.indexOf('9999')!==-1;
             var st=perm?'Бессрочный':(k.status||'Активен');
             var ex=perm?'\u221E':(k.expires?k.expires.substring(0,10):'\u2014');
-            h+='<div class="glass key-card anim-up"><div class="key-status"><span style="color:var(--accent);font-weight:600;font-size:12px;">'+st+'</span><span style="color:var(--text-muted);font-size:11px;font-family:var(--font-mono);">'+(perm?'':'до ')+ex+'</span></div><div class="key-text">'+k.key+'</div></div>';
+
+            var card=document.createElement('div'); card.className='glass key-card anim-up';
+            var statusRow=document.createElement('div'); statusRow.className='key-status';
+            var statusSpan=document.createElement('span');
+            statusSpan.style.cssText='color:var(--accent);font-weight:600;font-size:12px;';
+            statusSpan.textContent=st;
+            var expSpan=document.createElement('span');
+            expSpan.style.cssText='color:var(--text-muted);font-size:11px;font-family:var(--font-mono);';
+            expSpan.textContent=(perm?'':'до ')+ex;
+            statusRow.appendChild(statusSpan); statusRow.appendChild(expSpan);
+
+            var keyDiv=document.createElement('div'); keyDiv.className='key-text';
+            // textContent безопасно экранирует любые HTML-символы
+            keyDiv.textContent=k.key;
+
+            card.appendChild(statusRow); card.appendChild(keyDiv);
+            el.appendChild(card);
         }
-        el.innerHTML=h; hint.style.display='block';
+        hint.style.display='block';
     }
     function updateStatus(keys) {
         var d=document.getElementById('statusDot'), t=document.getElementById('statusText'), ex=document.getElementById('statusExpiry');
