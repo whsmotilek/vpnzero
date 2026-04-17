@@ -971,16 +971,26 @@
     function renderJar(stars) {
         // Cap
         var current = Math.max(0, Math.min(stars, JAR_MAX));
-        var pct = Math.round(current / JAR_MAX * 100);
+        var rawPct = current / JAR_MAX * 100;
+        // Display percent: for non-zero but <1%, show 1 decimal place
+        var pctStr;
+        if (current === 0) pctStr = '0';
+        else if (rawPct < 1) pctStr = rawPct.toFixed(2);
+        else if (rawPct < 10) pctStr = rawPct.toFixed(1);
+        else pctStr = String(Math.round(rawPct));
 
         document.getElementById('jarCurrent').textContent = fmtNum(current);
         document.getElementById('jarMax').textContent = fmtNum(JAR_MAX);
-        document.getElementById('jarPct').textContent = pct;
+        document.getElementById('jarPct').textContent = pctStr;
 
         // Jar interior: y=12 (top) to y=56 (bottom), 44 units tall
         var interiorTop = 12, interiorBottom = 56;
         var interiorH = interiorBottom - interiorTop;
         var fillH = (current / JAR_MAX) * interiorH;
+        // Minimum visible fill so small donations look visible
+        if (current > 0 && fillH < 4) fillH = 4;
+        // Cap so fill doesn't overflow
+        if (fillH > interiorH) fillH = interiorH;
         var fillY = interiorBottom - fillH;
 
         var liquid = document.getElementById('jarLiquid');
@@ -997,15 +1007,19 @@
             rects[i].setAttribute('height', h);
         }
 
-        // Draw pixel-stars inside fill area based on count
-        // 1 star per ~1000 Stars of revenue, max 40
-        var starCount = Math.min(40, Math.floor(current / 1000));
+        // Draw pixel-stars inside fill area. Scaled so small amounts still show a star.
+        // 1 star per 500 Stars, with min 1 if current > 0, max 40
+        var starCount = 0;
+        if (current > 0) {
+            starCount = Math.max(1, Math.min(40, Math.floor(current / 500)));
+        }
         var stars_g = document.getElementById('jarStars');
         stars_g.innerHTML = '';
-        // Deterministic "random" positions (seed by index)
+        // Safe vertical range for stars inside liquid
+        var starAreaH = Math.max(1, Math.floor(fillH - 3));
         for (var s = 0; s < starCount; s++) {
             var sx = 11 + ((s * 7 + 3) % 25);
-            var sy = fillY + 2 + ((s * 11 + 5) % Math.max(1, Math.floor(fillH - 3)));
+            var sy = fillY + 1 + ((s * 11 + 5) % starAreaH);
             var cls = (s % 3 === 0) ? 'jar-star-pixel dim' : 'jar-star-pixel';
             // Plus-shape pixel star (3x3)
             var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
