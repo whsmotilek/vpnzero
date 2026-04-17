@@ -393,6 +393,115 @@
         .guide-link:active { color: var(--accent); }
         .guide-note { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 10px; line-height: 1.5; }
 
+        /* ── Admin Panel ── */
+        .admin-header {
+            text-align: center; padding: 8px 0 16px;
+            animation: fadeIn 0.5s var(--ease);
+        }
+        .admin-header h2 {
+            font-family: var(--font-pixel); font-size: 14px;
+            letter-spacing: 2px; color: var(--accent);
+            text-transform: uppercase;
+        }
+        .admin-header .sub {
+            font-size: 11px; color: var(--text-muted); margin-top: 4px;
+            font-family: var(--font-mono);
+        }
+
+        /* ── Pixel Jar ── */
+        .jar-container {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 24px 16px 20px; margin-bottom: 10px;
+        }
+        .jar-count {
+            font-family: var(--font-pixel); font-size: 13px;
+            color: var(--text); margin-bottom: 14px; letter-spacing: 1px;
+            text-align: center;
+        }
+        .jar-count .num {
+            color: var(--accent); font-size: 15px;
+        }
+        .pixel-jar {
+            width: 180px; height: 240px;
+            image-rendering: pixelated; image-rendering: crisp-edges;
+            -webkit-image-rendering: pixelated;
+            filter: drop-shadow(0 8px 32px rgba(230,57,70,0.25));
+        }
+        .jar-rim { fill: #E63946; }
+        .jar-rim-shadow { fill: #8b1a24; }
+        .jar-rim-hl { fill: #ff8a95; }
+        .jar-wall { fill: #E63946; }
+        .jar-wall-inner { fill: #0a0a0d; }
+        .jar-wall-hl { fill: #ff8a95; }
+        .jar-liquid { fill: rgba(230,57,70,0.18); transition: y 1s var(--ease), height 1s var(--ease); }
+        .jar-liquid-surface { fill: #E63946; transition: y 1s var(--ease); }
+        .jar-star-pixel { fill: #ffdd2d; }
+        .jar-star-pixel.dim { fill: #c49a00; }
+
+        @keyframes jarStar {
+            0% { opacity: 0; transform: translateY(10px); }
+            30% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-14px); }
+        }
+        .jar-float { animation: jarStar 4s ease-in-out infinite; transform-origin: center; }
+
+        .jar-percent {
+            margin-top: 12px; font-family: var(--font-pixel);
+            font-size: 10px; letter-spacing: 1px; color: var(--text-muted);
+        }
+        .jar-percent b { color: var(--accent-soft); font-size: 11px; }
+        .jar-goal {
+            margin-top: 6px; font-size: 10px; color: var(--text-dim);
+            text-align: center;
+        }
+
+        /* ── Admin stats grid ── */
+        .admin-stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+            margin-bottom: 8px;
+        }
+        .admin-stat {
+            padding: 14px 14px; border-radius: var(--radius);
+            display: flex; flex-direction: column;
+        }
+        .admin-stat-label {
+            font-size: 10px; color: var(--text-muted); font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .admin-stat-value {
+            font-family: var(--font-pixel); font-size: 14px;
+            color: var(--text); letter-spacing: 1px;
+        }
+        .admin-stat-value.accent { color: var(--accent); }
+        .admin-stat-sub {
+            font-size: 10px; color: var(--text-dim); margin-top: 4px;
+            font-family: var(--font-mono);
+        }
+
+        .admin-row {
+            padding: 12px 16px; display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 6px;
+        }
+        .admin-row-label { font-size: 12px; color: var(--text-muted); }
+        .admin-row-value { font-size: 13px; font-weight: 600; font-family: var(--font-mono); }
+
+        .admin-action-btn {
+            display: block; width: 100%; padding: 14px;
+            background: rgba(230,57,70,0.08); border: 1px solid rgba(230,57,70,0.2);
+            border-radius: var(--radius); color: var(--text);
+            text-decoration: none; font-size: 13px; font-weight: 600;
+            margin-bottom: 6px; transition: all 0.25s var(--ease);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .admin-action-btn:active { transform: scale(0.98); background: rgba(230,57,70,0.14); }
+        .admin-action-icon { font-size: 18px; }
+
+        /* Nav button visibility: hidden by default, shown for admin */
+        .nav-item.admin-only { display: none; }
+        .nav-item.admin-only.visible { display: flex; }
+
         /* ── Not in Telegram ── */
         .not-in-tg { text-align: center; padding: 80px 24px; color: var(--text-muted); animation: fadeIn 0.8s var(--ease); }
         .not-in-tg h2 { color: var(--text); margin-bottom: 12px; font-family: var(--font-pixel); font-size: 16px; letter-spacing: 3px; }
@@ -546,6 +655,139 @@
     <p class="copy-hint" id="copyHint" style="display:none;">Нажмите на ключ, чтобы скопировать</p>
 </div>
 
+<!-- Admin -->
+<div id="page-admin" class="page">
+    <div class="admin-header">
+        <h2>admin panel</h2>
+        <div class="sub">ZERO VPN &mdash; dashboard</div>
+    </div>
+
+    <!-- Pixel Jar -->
+    <div class="glass jar-container">
+        <div class="jar-count"><span class="num" id="jarCurrent">0</span> / <span id="jarMax">50 000</span> &#11088;</div>
+        <svg class="pixel-jar" viewBox="0 0 48 64" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges">
+            <!-- Lid/Rim -->
+            <rect class="jar-rim-shadow" x="13" y="2" width="22" height="1"/>
+            <rect class="jar-rim" x="13" y="3" width="22" height="4"/>
+            <rect class="jar-rim-hl" x="14" y="3" width="20" height="1"/>
+            <rect class="jar-rim-shadow" x="13" y="6" width="22" height="1"/>
+            <!-- Neck -->
+            <rect class="jar-wall" x="16" y="7" width="16" height="3"/>
+            <rect class="jar-wall-hl" x="16" y="7" width="1" height="3"/>
+            <!-- Shoulder / top of body -->
+            <rect class="jar-wall" x="10" y="10" width="28" height="2"/>
+            <rect class="jar-wall-hl" x="10" y="10" width="1" height="2"/>
+            <!-- Left wall -->
+            <rect class="jar-wall" x="8" y="12" width="2" height="44"/>
+            <rect class="jar-wall-hl" x="8" y="12" width="1" height="44"/>
+            <!-- Right wall -->
+            <rect class="jar-wall" x="38" y="12" width="2" height="44"/>
+            <!-- Bottom -->
+            <rect class="jar-wall" x="10" y="56" width="28" height="2"/>
+            <rect class="jar-wall-hl" x="10" y="56" width="1" height="2"/>
+
+            <!-- Interior (clipped) -->
+            <clipPath id="jarInterior">
+                <rect x="10" y="12" width="28" height="44"/>
+            </clipPath>
+
+            <g clip-path="url(#jarInterior)">
+                <!-- Measurement lines every 25% -->
+                <line x1="10" y1="45" x2="38" y2="45" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+                <line x1="10" y1="34" x2="38" y2="34" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+                <line x1="10" y1="23" x2="38" y2="23" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+
+                <!-- Liquid fill -->
+                <rect id="jarLiquid" class="jar-liquid" x="10" y="56" width="28" height="0"/>
+
+                <!-- Surface wave (pixel blocks along top of liquid) -->
+                <g id="jarSurface">
+                    <rect class="jar-liquid-surface" x="10" y="56" width="4" height="0"/>
+                    <rect class="jar-liquid-surface" x="14" y="56" width="4" height="0"/>
+                    <rect class="jar-liquid-surface" x="18" y="56" width="4" height="0"/>
+                    <rect class="jar-liquid-surface" x="22" y="56" width="4" height="0"/>
+                    <rect class="jar-liquid-surface" x="26" y="56" width="4" height="0"/>
+                    <rect class="jar-liquid-surface" x="30" y="56" width="4" height="0"/>
+                    <rect class="jar-liquid-surface" x="34" y="56" width="4" height="0"/>
+                </g>
+
+                <!-- Static pixel stars (shown in fill area) -->
+                <g id="jarStars"></g>
+
+                <!-- Floating rising stars animation -->
+                <g class="jar-float" style="animation-delay:0s">
+                    <rect class="jar-star-pixel" x="14" y="50" width="1" height="1"/>
+                    <rect class="jar-star-pixel" x="13" y="51" width="3" height="1"/>
+                    <rect class="jar-star-pixel" x="14" y="52" width="1" height="1"/>
+                </g>
+                <g class="jar-float" style="animation-delay:1.3s">
+                    <rect class="jar-star-pixel" x="24" y="44" width="1" height="1"/>
+                    <rect class="jar-star-pixel" x="23" y="45" width="3" height="1"/>
+                    <rect class="jar-star-pixel" x="24" y="46" width="1" height="1"/>
+                </g>
+                <g class="jar-float" style="animation-delay:2.7s">
+                    <rect class="jar-star-pixel" x="32" y="48" width="1" height="1"/>
+                    <rect class="jar-star-pixel" x="31" y="49" width="3" height="1"/>
+                    <rect class="jar-star-pixel" x="32" y="50" width="1" height="1"/>
+                </g>
+            </g>
+        </svg>
+        <div class="jar-percent"><b id="jarPct">0</b>% до цели</div>
+        <div class="jar-goal">Собрано звёзд с начала запуска</div>
+    </div>
+
+    <div class="section-title">Статистика</div>
+    <div class="admin-stats-grid">
+        <div class="glass admin-stat">
+            <div class="admin-stat-label">Пользователей</div>
+            <div class="admin-stat-value" id="adminUsers">—</div>
+        </div>
+        <div class="glass admin-stat">
+            <div class="admin-stat-label">Платежей</div>
+            <div class="admin-stat-value" id="adminPays">—</div>
+        </div>
+        <div class="glass admin-stat">
+            <div class="admin-stat-label">Своб. ключей</div>
+            <div class="admin-stat-value accent" id="adminFreeKeys">—</div>
+        </div>
+        <div class="glass admin-stat">
+            <div class="admin-stat-label">Выдано ключей</div>
+            <div class="admin-stat-value" id="adminAssignedKeys">—</div>
+        </div>
+    </div>
+
+    <div class="section-title">Доход</div>
+    <div class="glass admin-row">
+        <span class="admin-row-label">Сегодня</span>
+        <span class="admin-row-value" id="finToday">0 &#11088;</span>
+    </div>
+    <div class="glass admin-row">
+        <span class="admin-row-label">За 7 дней</span>
+        <span class="admin-row-value" id="finWeek">0 &#11088;</span>
+    </div>
+    <div class="glass admin-row">
+        <span class="admin-row-label">За 30 дней</span>
+        <span class="admin-row-value" id="finMonth">0 &#11088;</span>
+    </div>
+    <div class="glass admin-row">
+        <span class="admin-row-label">Всего</span>
+        <span class="admin-row-value" id="finTotal">0 &#11088;</span>
+    </div>
+    <div class="glass admin-row">
+        <span class="admin-row-label">&asymp; в рублях (1.1/⭐)</span>
+        <span class="admin-row-value" id="finRub">0 руб.</span>
+    </div>
+
+    <div class="section-title">Серверы</div>
+    <div id="adminServers"></div>
+
+    <div class="section-title">Управление</div>
+    <a class="glass admin-action-btn" href="https://t.me/zero_vpn_bot" target="_blank">
+        <span class="admin-action-icon">&#128483;</span>
+        <span>Открыть /admin в боте &mdash; рассылка, выдача ключей, поиск</span>
+    </a>
+</div>
+
 <!-- Guide -->
 <div id="page-guide" class="page">
     <div class="section-title" style="margin-top:16px">Подключение</div>
@@ -567,6 +809,7 @@
     <button class="nav-item active" onclick="showPage('home',this)"><span class="nav-icon">&#127968;</span>Главная</button>
     <button class="nav-item" onclick="showPage('keys',this)"><span class="nav-icon">&#128273;</span>Ключи</button>
     <button class="nav-item" onclick="showPage('guide',this)"><span class="nav-icon">&#128214;</span>Инструкция</button>
+    <button class="nav-item admin-only" id="navAdmin" onclick="showPage('admin',this)"><span class="nav-icon">&#128737;</span>Админ</button>
 </div>
 
 <script>
@@ -588,6 +831,198 @@
         if (card) card.classList.toggle('open');
     }
 
+    // ── Admin ──
+    var ADMIN_TG_IDS = [1431518498, 416761522]; // whsmotilek, buzychkin
+    var JAR_MAX = 50000;
+    var DATA_GID = '524807808';
+    var STATUS_GID_ADMIN = '1527178392';
+    var _adminLoaded = false;
+
+    function isAdmin() {
+        return tgUser && ADMIN_TG_IDS.indexOf(tgUser.id) !== -1;
+    }
+
+    function fmtNum(n) {
+        // Thousand separator with non-breaking space
+        return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+    }
+
+    function parseGviz(text) {
+        var s = text.indexOf('('), e = text.lastIndexOf(')');
+        if (s === -1 || e === -1) return null;
+        try { return JSON.parse(text.substring(s + 1, e)); } catch (err) { return null; }
+    }
+
+    function parseDate(s) {
+        // Formats used in sheets: "YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DD HH:MM"
+        if (!s) return null;
+        s = String(s).trim();
+        var m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+        if (!m) return null;
+        return new Date(
+            parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10),
+            parseInt(m[4], 10), parseInt(m[5], 10), parseInt(m[6] || '0', 10)
+        );
+    }
+
+    function loadAdminStats() {
+        if (!isAdmin()) return;
+
+        // Fetch Данные (users + payments), Ключи, Статус
+        var urlData = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&gid=' + DATA_GID + '&headers=2&_t=' + Date.now();
+        var urlKeys = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&gid=' + KEYS_GID + '&headers=1&_t=' + Date.now();
+        var urlStatus = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&gid=' + STATUS_GID_ADMIN + '&headers=1&_t=' + Date.now();
+
+        Promise.all([
+            fetch(urlData, {cache: 'no-store'}).then(function(r){return r.text()}),
+            fetch(urlKeys, {cache: 'no-store'}).then(function(r){return r.text()}),
+            fetch(urlStatus, {cache: 'no-store'}).then(function(r){return r.text()}),
+        ]).then(function(res){
+            var d = parseGviz(res[0]);
+            var k = parseGviz(res[1]);
+            var st = parseGviz(res[2]);
+
+            // Users: count rows where col A (index 0) has value
+            // Payments: rows where col H (index 7) has value
+            var users = 0, totalStars = 0, payments = 0;
+            var todayStars = 0, weekStars = 0, monthStars = 0;
+            var now = new Date();
+            var today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            var weekAgo = new Date(today0.getTime() - 7 * 86400000);
+            var monthAgo = new Date(today0.getTime() - 30 * 86400000);
+
+            if (d && d.table && d.table.rows) {
+                var rows = d.table.rows;
+                for (var i = 0; i < rows.length; i++) {
+                    var c = rows[i].c || [];
+                    // User in col A (index 0)
+                    if (c[0] && c[0].v !== null && c[0].v !== '') users++;
+                    // Payment in col H (index 7) — tg_id
+                    if (c[7] && c[7].v !== null && c[7].v !== '') {
+                        payments++;
+                        var stars = 0;
+                        if (c[9] && c[9].v !== null) {
+                            stars = parseInt(c[9].v, 10) || 0;
+                        }
+                        totalStars += stars;
+                        // Date in col M (index 12)
+                        var dt = c[12] ? parseDate(c[12].v) : null;
+                        if (dt) {
+                            if (dt >= today0) todayStars += stars;
+                            if (dt >= weekAgo) weekStars += stars;
+                            if (dt >= monthAgo) monthStars += stars;
+                        }
+                    }
+                }
+            }
+
+            // Keys counts
+            var freeKeys = 0, assignedKeys = 0;
+            if (k && k.table && k.table.rows) {
+                var kr = k.table.rows;
+                for (var j = 0; j < kr.length; j++) {
+                    var kc = kr[j].c || [];
+                    var status = kc[1] && kc[1].v ? String(kc[1].v) : '';
+                    if (status === 'Свободен') freeKeys++;
+                    else if (status === 'Выдан') assignedKeys++;
+                }
+            }
+
+            // Update UI
+            document.getElementById('adminUsers').textContent = fmtNum(users);
+            document.getElementById('adminPays').textContent = fmtNum(payments);
+            document.getElementById('adminFreeKeys').textContent = fmtNum(freeKeys);
+            document.getElementById('adminAssignedKeys').textContent = fmtNum(assignedKeys);
+            document.getElementById('finToday').innerHTML = fmtNum(todayStars) + ' &#11088;';
+            document.getElementById('finWeek').innerHTML = fmtNum(weekStars) + ' &#11088;';
+            document.getElementById('finMonth').innerHTML = fmtNum(monthStars) + ' &#11088;';
+            document.getElementById('finTotal').innerHTML = fmtNum(totalStars) + ' &#11088;';
+            document.getElementById('finRub').textContent = '~' + fmtNum(Math.round(totalStars * 1.1)) + ' руб.';
+
+            // Server rows
+            var srvEl = document.getElementById('adminServers');
+            srvEl.innerHTML = '';
+            if (st && st.table && st.table.rows) {
+                var sr = st.table.rows;
+                for (var m2 = 0; m2 < sr.length; m2++) {
+                    var sc = sr[m2].c || [];
+                    if (!sc[0] || sc[0].v === null) continue;
+                    var name = String(sc[0].v);
+                    var onl = sc[1] && (sc[1].v === 'True' || sc[1].v === 'true' || sc[1].v === 'да');
+                    var ping = sc[2] ? sc[2].v : '';
+                    var row = document.createElement('div');
+                    row.className = 'glass admin-row';
+                    row.innerHTML = '<span class="admin-row-label"><span class="status-dot ' +
+                        (onl ? 'online' : 'offline') + '" style="display:inline-block;margin-right:8px;vertical-align:middle;"></span>' +
+                        name + '</span>' +
+                        '<span class="admin-row-value">' + (onl ? ping + ' ms' : 'offline') + '</span>';
+                    srvEl.appendChild(row);
+                }
+            }
+
+            // Update jar
+            renderJar(totalStars);
+            _adminLoaded = true;
+        }).catch(function(err){
+            console.log('Admin stats error:', err);
+        });
+    }
+
+    function renderJar(stars) {
+        // Cap
+        var current = Math.max(0, Math.min(stars, JAR_MAX));
+        var pct = Math.round(current / JAR_MAX * 100);
+
+        document.getElementById('jarCurrent').textContent = fmtNum(current);
+        document.getElementById('jarMax').textContent = fmtNum(JAR_MAX);
+        document.getElementById('jarPct').textContent = pct;
+
+        // Jar interior: y=12 (top) to y=56 (bottom), 44 units tall
+        var interiorTop = 12, interiorBottom = 56;
+        var interiorH = interiorBottom - interiorTop;
+        var fillH = (current / JAR_MAX) * interiorH;
+        var fillY = interiorBottom - fillH;
+
+        var liquid = document.getElementById('jarLiquid');
+        liquid.setAttribute('y', fillY);
+        liquid.setAttribute('height', fillH);
+
+        // Surface wave — 7 pixel blocks at top of liquid, alternating heights
+        var surface = document.getElementById('jarSurface');
+        var rects = surface.querySelectorAll('rect');
+        for (var i = 0; i < rects.length; i++) {
+            var offset = (i % 2) * 0.7;
+            var h = current > 0 ? 1 + offset : 0;
+            rects[i].setAttribute('y', fillY - offset);
+            rects[i].setAttribute('height', h);
+        }
+
+        // Draw pixel-stars inside fill area based on count
+        // 1 star per ~1000 Stars of revenue, max 40
+        var starCount = Math.min(40, Math.floor(current / 1000));
+        var stars_g = document.getElementById('jarStars');
+        stars_g.innerHTML = '';
+        // Deterministic "random" positions (seed by index)
+        for (var s = 0; s < starCount; s++) {
+            var sx = 11 + ((s * 7 + 3) % 25);
+            var sy = fillY + 2 + ((s * 11 + 5) % Math.max(1, Math.floor(fillH - 3)));
+            var cls = (s % 3 === 0) ? 'jar-star-pixel dim' : 'jar-star-pixel';
+            // Plus-shape pixel star (3x3)
+            var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            var r1 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            r1.setAttribute('x', sx); r1.setAttribute('y', sy); r1.setAttribute('width', 1); r1.setAttribute('height', 1);
+            r1.setAttribute('class', cls);
+            var r2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            r2.setAttribute('x', sx - 1); r2.setAttribute('y', sy + 1); r2.setAttribute('width', 3); r2.setAttribute('height', 1);
+            r2.setAttribute('class', cls);
+            var r3 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            r3.setAttribute('x', sx); r3.setAttribute('y', sy + 2); r3.setAttribute('width', 1); r3.setAttribute('height', 1);
+            r3.setAttribute('class', cls);
+            g.appendChild(r1); g.appendChild(r2); g.appendChild(r3);
+            stars_g.appendChild(g);
+        }
+    }
+
     // ── Telegram WebApp ──
     const tg = window.Telegram && window.Telegram.WebApp;
     let tgUser = null;
@@ -599,6 +1034,11 @@
         tgUser = tg.initDataUnsafe.user;
         document.getElementById('app').style.display = 'block';
         document.getElementById('bottomNav').style.display = 'flex';
+        // Show admin nav button only for admins
+        if (tgUser && [1431518498, 416761522].indexOf(tgUser.id) !== -1) {
+            var navAdmin = document.getElementById('navAdmin');
+            if (navAdmin) navAdmin.classList.add('visible');
+        }
         var fn = tgUser.first_name || '', ln = tgUser.last_name || '';
         document.getElementById('userGreeting').textContent = 'Привет, ' + fn + (ln ? ' ' + ln : '') + '!';
         document.getElementById('userId').textContent = tgUser.id;
@@ -614,6 +1054,10 @@
         document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
         if(navEl) navEl.classList.add('active');
         window.scrollTo({top:0,behavior:'smooth'});
+        // Load admin stats when admin page opened (admins only)
+        if (name === 'admin' && typeof loadAdminStats === 'function') {
+            loadAdminStats();
+        }
     }
 
     // ── Plans ──
